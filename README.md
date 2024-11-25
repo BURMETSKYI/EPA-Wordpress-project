@@ -110,6 +110,7 @@ location / {
     }
 }
 #
+nginx -t
 systemctl restart nginx
 ```
 

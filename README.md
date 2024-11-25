@@ -54,11 +54,11 @@ systemctl status mariadb
 Step 5. Create a WordPress database and user
 ```
 mysql -u root
-MariaDB [(none)]> CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'YourStrongPassword';
-MariaDB [(none)]> CREATE DATABASE wordpress;
-MariaDB [(none)]> GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost';
-MariaDB [(none)]> FLUSH PRIVILEGES;
-MariaDB [(none)]> EXIT;
+> CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'YourStrongPassword';
+> CREATE DATABASE wordpress;
+> GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost';
+> FLUSH PRIVILEGES;
+> EXIT;
 ```
 Step 6. Download and Install WordPress
 ```

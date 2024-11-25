@@ -84,7 +84,7 @@ Step 7. Create Nginx Server Block File
 nano /etc/nginx/conf.d/wordpress.conf
 #
 server {
-listen 80;
+   listen 80;
    server_name example.com;
 
    root /var/www/wordpress;

@@ -35,39 +35,39 @@ Step 1. Update the System
 ```
 Step 2. Install the Nginx web server
 ```
-  apt install nginx
-  systemctl start nginx && systemctl enable nginx
-  systemctl status nginx
+apt install nginx
+systemctl start nginx && systemctl enable nginx
+systemctl status nginx
   
 ```
 Step 3. Install PHP
 ```
-  apt install php php-cli php-common php-imap php-fpm php-snmp php-xml php-zip php-mbstring php-curl php-mysqli php-gd php-intl
-  php -v
+apt install php php-cli php-common php-imap php-fpm php-snmp php-xml php-zip php-mbstring php-curl php-mysqli php-gd php-intl
+php -v
 ```
 Step 4. Install the MariaDB database server
 ```
-  apt install mariadb-server
-  systemctl start mariadb && sudo systemctl enable mariadb
-  systemctl status mariadb
+apt install mariadb-server
+systemctl start mariadb && sudo systemctl enable mariadb
+systemctl status mariadb
 ```
 Step 5. Create a WordPress database and user
 ```
-  mysql -u root
-  MariaDB [(none)]> CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'YourStrongPassword';
-  MariaDB [(none)]> CREATE DATABASE wordpress;
-  MariaDB [(none)]> GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost';
-  MariaDB [(none)]> FLUSH PRIVILEGES;
-  MariaDB [(none)]> EXIT;
+mysql -u root
+MariaDB [(none)]> CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'YourStrongPassword';
+MariaDB [(none)]> CREATE DATABASE wordpress;
+MariaDB [(none)]> GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost';
+MariaDB [(none)]> FLUSH PRIVILEGES;
+MariaDB [(none)]> EXIT;
 ```
 Step 6. Download and Install WordPress
 ```
-  cd /tmp/ && wget https://wordpress.org/latest.zip
-  unzip latest.zip -d /var/www
-  chown -R www-data:www-data /var/www/wordpress/
-  mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php
-  nano /var/www/wordpress/wp-config.php
-
+cd /tmp/ && wget https://wordpress.org/latest.zip
+unzip latest.zip -d /var/www
+chown -R www-data:www-data /var/www/wordpress/
+mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php
+nano /var/www/wordpress/wp-config.php
+#
 // ** Database settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
 define( 'DB_NAME', 'wordpress' );
@@ -77,6 +77,39 @@ define( 'DB_USER', 'wordpress' );
 
 /** Database password */
 define( 'DB_PASSWORD', 'YourStrongPassword' );
+```
+Step 7. Create Nginx Server Block File
+```
+nano /etc/nginx/conf.d/wordpress.conf
+#
+server {
+listen 80;
+   server_name example.com;
+
+   root /var/www/wordpress;
+   index index.php;
+
+   server_tokens off;
+
+   access_log /var/log/nginx/wordpress_access.log;
+   error_log /var/log/nginx/wordpress_error.log;
+
+   client_max_body_size 64M;
+
+location / {
+   try_files $uri $uri/ /index.php?$args;
+}
+
+   location ~ \.php$ {
+      fastcgi_pass  unix:/run/php/php8.3-fpm.sock;
+      fastcgi_index index.php;
+      include fastcgi_params;
+      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+      include /etc/nginx/fastcgi.conf;
+    }
+}
+#
+systemctl restart nginx
 ```
 
 | Parameter | Type     | Description                |

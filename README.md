@@ -29,26 +29,24 @@ Any additional information goes here
 ## API Reference
 
 #### Get all items
-
-
-
-```123123sda
+Step 1. Update the System
+```
   apt update && apt-get upgrade
+```
+Step 2. Install the Nginx web server
+```
   apt install nginx
   systemctl start nginx && systemctl enable nginx
   systemctl status nginx
-  apt install php php-cli php-common php-imap php-fpm php-snmp php-xml php-zip php-mbstring php-curl php-mysqli php-gd php-intl
-  php -v
+  
 ```
 Step 3. Install PHP
 ```
-Step 4. Install the MariaDB database server
-```http
-  apt install mariadb-server
-
+  apt install php php-cli php-common php-imap php-fpm php-snmp php-xml php-zip php-mbstring php-curl php-mysqli php-gd php-intl
+  php -v
 ```
 Step 4. Install the MariaDB database server
-```sada
+```
   apt install mariadb-server
 
 ```

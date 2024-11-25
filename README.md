@@ -48,7 +48,35 @@ Step 3. Install PHP
 Step 4. Install the MariaDB database server
 ```
   apt install mariadb-server
+  systemctl start mariadb && sudo systemctl enable mariadb
+  systemctl status mariadb
+```
+Step 5. Create a WordPress database and user
+```
+  mysql -u root
+  MariaDB [(none)]> CREATE USER 'wordpress'@'localhost' IDENTIFIED BY 'YourStrongPassword';
+  MariaDB [(none)]> CREATE DATABASE wordpress;
+  MariaDB [(none)]> GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress'@'localhost';
+  MariaDB [(none)]> FLUSH PRIVILEGES;
+  MariaDB [(none)]> EXIT;
+```
+Step 6. Download and Install WordPress
+```
+  cd /tmp/ && wget https://wordpress.org/latest.zip
+  unzip latest.zip -d /var/www
+  chown -R www-data:www-data /var/www/wordpress/
+  mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php
+  nano /var/www/wordpress/wp-config.php
 
+// ** Database settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'wordpress' );
+
+/** Database username */
+define( 'DB_USER', 'wordpress' );
+
+/** Database password */
+define( 'DB_PASSWORD', 'YourStrongPassword' );
 ```
 
 | Parameter | Type     | Description                |

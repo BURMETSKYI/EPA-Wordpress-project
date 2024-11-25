@@ -31,7 +31,7 @@ Any additional information goes here
 #### Get all items
 Step 1. Update the System
 ```
-  apt update && apt-get upgrade
+apt update && apt-get upgrade
 ```
 Step 2. Install the Nginx web server
 ```
@@ -63,6 +63,7 @@ mysql -u root
 Step 6. Download and Install WordPress
 ```
 cd /tmp/ && wget https://wordpress.org/latest.zip
+sudo apt install unzip
 unzip latest.zip -d /var/www
 chown -R www-data:www-data /var/www/wordpress/
 mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php

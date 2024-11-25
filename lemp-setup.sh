@@ -2,7 +2,6 @@
 sudo apt-get update -y
 sudo apt-get upgrade -y
 sudo touch /root/test.txt # Unit tests log file for LEMP
-sudo apt install git -y
 sudo apt install nginx -y
 sudo systemctl start nginx
 sudo systemctl enable nginx

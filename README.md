@@ -28,7 +28,7 @@ Any additional information goes here
 
 ## API Reference
 
-#### Get all items
+#### LEMP installing process
 Step 1. Update the System
 ```
 apt update && apt-get upgrade
@@ -112,6 +112,11 @@ location / {
 #
 nginx -t
 systemctl restart nginx
+```
+
+### WordPress BASH install script
+```
+
 ```
 
 | Parameter | Type     | Description                |

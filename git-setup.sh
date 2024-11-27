@@ -1,4 +1,6 @@
 #!/bin/bash
+sudo apt-get update -y
+sudo apt-get upgrade -y
 sudo apt -y install git
 sudo git clone https://github.com/BURMETSKYI/EPA-Wordpress-project.git /root/EPA-Wordpress-project
 sudo chmod -R 755 /root/EPA-Wordpress-project/

@@ -1,11 +1,10 @@
 #!/bin/bash
 sudo apt-get update -y
 sudo apt-get upgrade -y
-sudo touch /root/test.txt # Unit tests log file for LEMP
 sudo apt install nginx -y
 sudo systemctl start nginx
 sudo systemctl enable nginx
-sudo systemctl status nginx > /root/test.txt
+sudo systemctl status nginx >> /root/test.txt
 sudo apt install mariadb-server -y
 sudo systemctl start mariadb
 sudo systemctl enable mariadb

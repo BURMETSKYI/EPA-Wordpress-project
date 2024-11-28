@@ -119,6 +119,14 @@ systemctl restart nginx
 
 ```
 
+### Certbot install
+```
+sudo apt install certbot
+sudo apt install python3-certbot-nginx
+sudo certbot --nginx
+```
+
+
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
 | `api_key` | `string` | **Required**. Your API key |

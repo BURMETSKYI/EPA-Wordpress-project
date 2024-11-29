@@ -1,5 +1,5 @@
-# EPA Wordpress-project
-[![Static Badge](https://img.shields.io/badge/go_to-moncorp.uk-blue?style=flat-square)](https://www.moncorp.uk/)
+# End Point Assessment Project
+[![Static Badge](https://img.shields.io/badge/visit-moncorp.uk-blue?style=flat-square)](https://www.moncorp.uk/)
 
 
 # Launching a WordPress E-commerce Site on AWS with a LEMP Stack, Secured by Cloudflare, Automated with GitHub Actions CI/CD, and Deployed Using CloudFormation.
@@ -122,9 +122,11 @@ nginx -t
 systemctl restart nginx
 ```
 
-### WordPress BASH install script
+### WordPress BASH install 
 ```
-
+sudo apt -y install unzip
+sudo wget -O /var/www/latest.zip https://wordpress.org/latest.zip
+sudo unzip /var/www/latest.zip -d /var/www
 ```
 
 ### Certbot install
@@ -134,39 +136,14 @@ sudo apt install python3-certbot-nginx
 sudo certbot --nginx
 ```
 
-
-| Parameter | Type     | Description                |
-| :-------- | :------- | :------------------------- |
-| `api_key` | `string` | **Required**. Your API key |
-
-#### Get item
-
-
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `id`      | `string` | **Required**. Id of item to fetch |
-
-#### add(num1, num2)
-
-Takes two numbers and returns the sum.
-
-
 ## Tech Stack
 
-**Client:** React, Redux, TailwindCSS
+**Client:** PHP, Wordpress, MariaDB
 
-**Server:** Node, Express
+**Server:** AWS EC-2 instance, S3-Bucket, CloudFormation
 
 
 ## Support
 
-For support, email fake@fake.com or join our Slack channel.
-
-
-# Project Title
-
-A brief description of what this project does and who it's for
-
-
+For support, email vadym.burmetskyi@apprentice.ua92.ac.uk
 

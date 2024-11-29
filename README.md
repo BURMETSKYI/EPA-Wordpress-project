@@ -29,12 +29,7 @@ Objectives:
 - [@BURMETSKYI](https://github.com/BURMETSKYI)
 
 
-## Appendix
-
-Any additional information goes here
-
-
-## API Reference
+## Example of the underlying manual process before it was automated in the current project 
 
 #### LEMP installing process
 Step 1. Update the System

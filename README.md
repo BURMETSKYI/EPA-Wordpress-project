@@ -2,9 +2,19 @@
 ![Static Badge](https://img.shields.io/badge/any_text_i_like-red?style=flat-square&label=123)
 
 
-# Project Title
+# Launching a WordPress E-commerce Site on AWS with a LEMP Stack, Secured by Cloudflare, Automated with GitHub Actions CI/CD, and Deployed Using CloudFormation.
 
-A brief description of what this project does and who it's for
+
+The project aims to deploy a WordPress-based e-commerce website specializing in selling electronic components. The deployment will leverage a LEMP stack (Linux, Nginx, MySQL/MariaDB, PHP) hosted on AWS. The infrastructure will be provisioned and managed using AWS CloudFormation. Cloudflare will be integrated for enhanced security and performance while Certbot will handle SSL certificates to ensure secure HTTPS communication. Continuous integration and delivery (CI/CD) processes will be automated using GitHub Actions.
+
+Objectives:
+1. Infrastructure Setup: Deploy a scalable and secure LEMP stack on AWS using CloudFormation to establish the foundational infrastructure.
+2. Website Deployment: Configure WordPress as the content management system for the electronic components e-commerce store.
+3. Security: Integrate Cloudflare to secure the website, enhance performance, and manage DNS.
+4. CI/CD Pipeline: Automate the testing, building, and deployment processes using GitHub Actions to ensure smooth continuous integration and delivery.
+5. Monitoring and Maintenance: Implement monitoring and alerting systems to ensure the ongoing performance and security of the infrastructure and application.
+
+
 
 
 ## Badges

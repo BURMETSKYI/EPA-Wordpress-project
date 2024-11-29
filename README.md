@@ -1,5 +1,5 @@
 # EPA Wordpress-project
-[![Static Badge](https://img.shields.io/badge/click_it-moncorp.uk-blue?style=flat-square)](https://www.moncorp.uk/)
+[![Static Badge](https://img.shields.io/badge/go_to-moncorp.uk-blue?style=flat-square)](https://www.moncorp.uk/)
 
 
 # Launching a WordPress E-commerce Site on AWS with a LEMP Stack, Secured by Cloudflare, Automated with GitHub Actions CI/CD, and Deployed Using CloudFormation.

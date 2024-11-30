@@ -15,11 +15,11 @@ sudo mv /var/www/html/index.html /var/www/html/index.html.old
 sudo mv /root/EPA-Wordpress-project/nginx.conf /etc/nginx/conf.d/nginx.conf
 
 # dns_record=$(curl -s icanhazip.com | sed 's/^/ec2-/; s/\./-/g; s/$/.compute-1.amazonaws.com/')
-domain=DOMAIN
-elastic_ip=ELASTIC_IP
+domain= ${{ secrets.DOMAIN }}
+elastic_ip= ${{ secrets.ELASTIC_IP }}
 
-CF_API=CF_API
-CF_ZONE_ID=CF_ZONE_ID
+CF_API= ${{ secrets.CF_API }}
+CF_ZONE_ID= ${{ secrets.CF_ZONE_ID }}
 
 curl --request POST \
   --url https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records \

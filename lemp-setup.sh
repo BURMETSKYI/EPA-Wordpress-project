@@ -13,7 +13,28 @@ sudo systemctl stop apache2
 sudo systemctl disable apache2
 sudo mv /var/www/html/index.html /var/www/html/index.html.old
 sudo mv /root/EPA-Wordpress-project/nginx.conf /etc/nginx/conf.d/nginx.conf
-dns_record=$(curl -s icanhazip.com | sed 's/^/ec2-/; s/\./-/g; s/$/.compute-1.amazonaws.com/')
-sed -i "s/SERVERNAME/$dns_record/g" /etc/nginx/conf.d/nginx.conf
+
+# dns_record=$(curl -s icanhazip.com | sed 's/^/ec2-/; s/\./-/g; s/$/.compute-1.amazonaws.com/')
+domain=DOMAIN
+elastic_ip=ELASTIC_IP
+
+CF_API=CF_API
+CF_ZONE_ID=CF_ZONE_ID
+
+curl --request POST \
+  --url https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records \
+  --header 'Content-Type: application/json' \
+  --header "Authorization: Bearer $CF_API" \
+  --data '{
+  "content": "'"$elastic_ip"'",
+  "name": "'"$domain"'",
+  "proxied": true,
+  "type": "A",
+  "comment": "Automatically adding A record",
+  "tags": [],
+  "ttl": 3600
+}'
+
+sed -i "s/SERVERNAME/$domain/g" /etc/nginx/conf.d/nginx.conf
 nginx -t && systemctl reload nginx
 sudo bash /root/EPA-Wordpress-project/certbot-ssl-install.sh

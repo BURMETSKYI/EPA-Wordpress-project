@@ -18,10 +18,10 @@ sudo mysql -e "CREATE USER '$username'@'localhost' IDENTIFIED BY '$password'"
 sudo mysql -e "GRANT ALL PRIVILEGES ON $username.* TO '$username'@'localhost'"
 sudo mysql -e "FLUSH PRIVILEGES"
 
-sudo wget -O /var/www/html/wp-config.php https://wp-s3-storage.s3.us-east-1.amazonaws.com/wp-config.php
+# sudo wget -O /var/www/html/wp-config.php https://wp-s3-storage.s3.us-east-1.amazonaws.com/wp-config.php
 sudo chmod 640 /var/www/html/wp-config.php 
 sudo chown -R www-data:www-data /var/www/html
 
-sed -i 's/passwrod_here/$password/g' /var/www/html/wp-config.php
+sed -i 's/password_here/$password/g' /var/www/html/wp-config.php
 sed -i "s/username_here/$username/g" /var/www/html/wp-config.php
 sed -i "s/database_name_here/$username/g" /var/www/html/wp-config.php

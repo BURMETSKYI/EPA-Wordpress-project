@@ -19,4 +19,4 @@ sudo nginx -t && systemctl reload nginx
 # sudo certbot renew --dry-run
 
 # RUN Wordpress installation script
-sudo bash /root/EPA-Wordpress-project/wordpress-install.sh
+# sudo bash /root/EPA-Wordpress-project/wordpress-install.sh

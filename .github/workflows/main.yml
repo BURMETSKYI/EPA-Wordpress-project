@@ -30,15 +30,25 @@ jobs:
 
     - name: Edit CF Variables
       run: |
+        echo "Editing Cloudflare variables in lemp-setup.sh..."
         sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./lemp-setup.sh
         sed -i 's/S_ELASTIC_IP/${{ secrets.ELASTIC_IP }}/g' ./lemp-setup.sh
         sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./lemp-setup.sh
         sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./lemp-setup.sh
+        cat ./lemp-setup.sh  # Print file contents to confirm the edits
+
 
     - name: Copy files to VM
       run: |
-        scp -r -i private_key -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} "${PWD}"/* ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }}:~
+        echo "Copying files to VM..."
+        scp -r -i private_key -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} "${PWD}" ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }}:~
+        echo "Files copied successfully."
         
     - name: Run git-setup.sh on the VM
       run: |
+        echo "Running git-setup.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/git-setup.sh'
+        echo "Script executed successfully."
+
+
+        

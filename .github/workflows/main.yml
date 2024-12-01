@@ -36,8 +36,12 @@ jobs:
         sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./lemp-setup.sh
         sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./lemp-setup.sh
         cat ./lemp-setup.sh  # Print file contents to confirm the edits
+        echo "Editing Cloudflare variables in certbot-ssl-install.sh..."
+        sed -i 's/S_EMAIL/${{ secrets.EMAIL }}/g' ./certbot-ssl-install.sh
+        sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./certbot-ssl-install.sh
+        cat ./certbot-ssl-install.sh  # Print file contents to confirm the edits
 
-
+        
     - name: Copy files to VM
       run: |
         echo "Copying files to VM..."

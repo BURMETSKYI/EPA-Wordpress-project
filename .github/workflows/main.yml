@@ -3,7 +3,7 @@ name: Test and Deploy Bash Script.
 on:
   push:
     branches:
-      - staging
+      - main
 
   deploy:
     runs-on: ubuntu-latest

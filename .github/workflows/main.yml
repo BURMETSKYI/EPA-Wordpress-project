@@ -1,0 +1,20 @@
+name: Test and Deploy Bash Script
+
+on:
+  push:
+    branches:
+      - staging
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Debug SSH connection
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+        chmod 600 private_key
+
+        ssh -i private_key -o StrictiHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@{{ secrets.ELASTIC_IP }} "echo 'SSH Connection Successful'"

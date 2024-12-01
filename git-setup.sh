@@ -39,6 +39,6 @@ check_exit_status "chmod"
 sudo touch /root/nginx_mariadb_php_test.txt # Unit tests log file
 
 # lemp-setup.sh
-echo "Running lemp-setup.sh script..." | tee -a $LOG_FILE
-sudo bash /root/EPA-Wordpress-project/lemp-setup.sh
-check_exit_status "lemp-setup.sh script"
+# echo "Running lemp-setup.sh script..." | tee -a $LOG_FILE
+# sudo bash /root/EPA-Wordpress-project/lemp-setup.sh
+# check_exit_status "lemp-setup.sh script"

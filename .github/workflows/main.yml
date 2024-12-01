@@ -4,7 +4,10 @@ on:
   push:
     branches:
       - main
-
+env:
+  CF_API: ${{ secrets.SECRET_CF_API }}
+  CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -24,3 +27,13 @@ jobs:
     
         echo "Testing SSH connection to ${{ secrets.ELASTIC_IP }} as ${{ secrets.SSH_USERNAME }} on port ${{ secrets.SSH_PORT }}..."
         ssh -vvv -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} "echo 'SSH Connection Successful'"
+
+    - name: Edit CF Variables
+      run: |
+        sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./lemp-setup.sh
+        sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./lemp-setup.sh
+
+    - name: Copy files to VM
+      run: |
+        scp -i private_key -o StrictHostKeyChecking=no -P ${{ secrets.PORT }} * ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~
+        

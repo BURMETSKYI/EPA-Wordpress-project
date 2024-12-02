@@ -27,11 +27,11 @@ echo $password > creds.txt
 echo $username >> creds.txt
 
 # Create the database and user in MariaDB
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS \'$username\'"
+sudo mysql -e "CREATE DATABASE IF NOT EXISTS '$username'"
 if [ $? -eq 0 ]; then
     echo "Database $username created or already exists."
 else
-    echo "Failed to create database."
+    echo "Failed to create a database."
     exit 1
 fi
 

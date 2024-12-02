@@ -11,8 +11,8 @@ curl -X GET "https://api.cloudflare.com/client/v4/user/tokens/verify" \
 
 # Cloudflare API and Zone Info
 
-CF_API= S_CF_API
-CF_ZONE_ID= S_CF_ZONE_ID
+CF_API=S_CF_API
+CF_ZONE_ID=S_CF_ZONE_ID
 
 # Create the DNS record in Cloudflare
 curl --request POST \

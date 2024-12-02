@@ -33,10 +33,10 @@ check_exit_status "apt upgrade"
 
 # sudo chmod 
 echo "Changing permissions of the cloned repository..." | tee -a $LOG_FILE
-sudo chmod -R 755 /root/EPA-Wordpress-project/
+sudo chmod -R 755 /home/ubuntu/EPA-Wordpress-project/
 check_exit_status "chmod"
 
-sudo touch /root/nginx_mariadb_php_test.txt # Unit tests log file
+sudo touch /home/ubuntu/nginx_mariadb_php_test.txt # Unit tests log file
 
 # lemp-setup.sh
 # echo "Running lemp-setup.sh script..." | tee -a $LOG_FILE

@@ -37,4 +37,4 @@ curl --request POST \
 
 sed -i "s/SERVERNAME/$domain/g" /etc/nginx/conf.d/nginx.conf
 nginx -t && systemctl reload nginx
-sudo bash /root/EPA-Wordpress-project/certbot-ssl-install.sh
+# sudo bash /root/EPA-Wordpress-project/certbot-ssl-install.sh

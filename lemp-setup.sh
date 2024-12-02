@@ -35,6 +35,6 @@ curl --request POST \
   "ttl": 3600
 }'
 
-# sed -i "s/SERVERNAME/$domain/g" /etc/nginx/conf.d/nginx.conf
+sed -i "s/SERVERNAME/$domain/g" /etc/nginx/conf.d/nginx.conf
 nginx -t && systemctl reload nginx
 # sudo bash /root/EPA-Wordpress-project/certbot-ssl-install.sh

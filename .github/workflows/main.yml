@@ -36,11 +36,22 @@ jobs:
         sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./lemp-setup.sh
         sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./lemp-setup.sh
         cat ./lemp-setup.sh  # Print file contents to confirm the edits
+        
         echo "Editing Cloudflare variables in certbot-ssl-install.sh..."
         sed -i 's/S_EMAIL/${{ secrets.EMAIL }}/g' ./certbot-ssl-install.sh
         sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./certbot-ssl-install.sh
         cat ./certbot-ssl-install.sh  # Print file contents to confirm the edits
 
+        echo "Editing SERVERNAME variable in ngnix.conf..."
+        sed -i 's/SERVERNAME/${{ secrets.DOMAIN }}/g' ./ngnix.conf
+        cat ./certbot-ssl-install.sh  # Print file contents to confirm the edits
+
+        echo "Editing Cloudflare variables in cloudflare-dns.sh..."
+        sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./cloudflare-dns.sh
+        sed -i 's/S_ELASTIC_IP/${{ secrets.ELASTIC_IP }}/g' ./cloudflare-dns.sh
+        sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./cloudflare-dns.sh
+        sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./cloudflare-dns.sh
+        cat ./lemp-setup.sh  # Print file contents to confirm the edits
         
     - name: Copy files to VM
       run: |
@@ -54,5 +65,28 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/git-setup.sh'
         echo "Script executed successfully."
 
+    - name: Run lemp-setup.sh on the VM
+      run: |
+        echo "Running lemp-setup.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/lemp-setup.sh'
+        echo "Script executed successfully."
+
+    - name: Run cloudflare-dns.sh on the VM
+      run: |
+        echo "Running cloudflare-dns.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/cloudflare-dns.sh'
+        echo "Script executed successfully."
+    
+    - name: Run wordpress-install.sh on the VM
+      run: |
+        echo "Running wordpress-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/wordpress-install.sh'
+        echo "Script executed successfully."
+
+    - name: Run certbot-ssl-install.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh'
+        echo "Script executed successfully."
 
         

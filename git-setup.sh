@@ -37,6 +37,7 @@ sudo chmod -R 755 /home/ubuntu/EPA-Wordpress-project/
 check_exit_status "chmod"
 
 sudo touch /home/ubuntu/nginx_mariadb_php_test.txt # Unit tests log file
+echo "Unit test log file created..." | tee -a $LOG_FILE
 
 # lemp-setup.sh
 # echo "Running lemp-setup.sh script..." | tee -a $LOG_FILE

@@ -11,15 +11,14 @@ sudo apt -y install php php-cli php-common php-imap php-fpm php-snmp php-xml php
 sudo php -v >> /root/nginx_mariadb_php_test.txt
 sudo systemctl stop apache2
 sudo systemctl disable apache2
-sudo mv /var/www/html/index.html /var/www/html/index.html.old
+# sudo mv /var/www/html/index.html /var/www/html/index.html.old
 sudo mv /home/ubuntu/EPA-Wordpress-project/nginx.conf /etc/nginx/conf.d/nginx.conf
 
 # dns_record=$(curl -s icanhazip.com | sed 's/^/ec2-/; s/\./-/g; s/$/.compute-1.amazonaws.com/')
-domain= S_DOMAIN
-elastic_ip= S_ELASTIC_IP
-
-CF_API= S_CF_API
-CF_ZONE_ID= S_CF_ZONE_ID
+domain=S_DOMAIN
+elastic_ip=S_ELASTIC_IP
+CF_API=S_CF_API
+CF_ZONE_ID=S_CF_ZONE_ID
 
 curl --request POST \
   --url https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records \

@@ -22,14 +22,14 @@ sudo apt-get update -y
 check_exit_status "apt update"
 
 # sudo apt upgrade
-echo "Running apt update..." | tee -a $LOG_FILE
+echo "Running apt upgrade..." | tee -a $LOG_FILE
 sudo apt-get upgrade -y
 check_exit_status "apt upgrade"
 
 # git clone repository
-echo "Cloning GitHub repository..." | tee -a $LOG_FILE
-sudo git clone https://github.com/BURMETSKYI/EPA-Wordpress-project.git /root/EPA-Wordpress-project
-check_exit_status "git clone"
+# echo "Cloning GitHub repository..." | tee -a $LOG_FILE
+#sudo git clone https://github.com/BURMETSKYI/EPA-Wordpress-project.git /root/EPA-Wordpress-project
+# check_exit_status "git clone"
 
 # sudo chmod 
 echo "Changing permissions of the cloned repository..." | tee -a $LOG_FILE

@@ -12,7 +12,7 @@ sudo php -v >> /root/nginx_mariadb_php_test.txt
 sudo systemctl stop apache2
 sudo systemctl disable apache2
 sudo mv /var/www/html/index.html /var/www/html/index.html.old
-sudo mv /root/EPA-Wordpress-project/nginx.conf /etc/nginx/conf.d/nginx.conf
+sudo mv /home/ubuntu/EPA-Wordpress-project/nginx.conf /etc/nginx/conf.d/nginx.conf
 
 # dns_record=$(curl -s icanhazip.com | sed 's/^/ec2-/; s/\./-/g; s/$/.compute-1.amazonaws.com/')
 domain= S_DOMAIN

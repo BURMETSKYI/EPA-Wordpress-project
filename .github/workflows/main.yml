@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-env:
-  CF_API: ${{ secrets.SECRET_CF_API }}
-  CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
   
 jobs:
   deploy:

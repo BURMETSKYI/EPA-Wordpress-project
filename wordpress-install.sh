@@ -1,84 +1,60 @@
 #!/bin/bash
 
-# Remove existing WordPress installation (if any)
+# Constants
+rds_edpoint=RDS_ENDPOINT # Replace with your RDS endpoint
+db_username=DB_USERNAME   # Replace with your RDS admin username
+db_password=DB_PASSWORD   # Replace with your RDS admin password
+
+# Functions for error handling
+function check_exit_status {
+    if [ $? -ne 0 ]; then
+        echo "$1 failed. Exiting."
+        exit 1
+    fi
+}
+
+# Install necessary packages
+echo "Installing required packages..."
+sudo apt update
+sudo apt -y install unzip wget mariadb-client
+check_exit_status "Package installation"
+
+# Remove any existing WordPress installation
+echo "Cleaning up existing WordPress installation..."
 sudo rm -rf /var/www/html
 
-# Install unzip if not installed
-sudo apt -y install unzip
-
-# Download the latest WordPress zip file
+# Download and extract the latest WordPress package
+echo "Downloading the latest WordPress..."
 sudo wget -O /var/www/latest.zip https://wordpress.org/latest.zip
+check_exit_status "WordPress download"
 
-# Unzip WordPress into the correct directory
+echo "Extracting WordPress files..."
 sudo unzip /var/www/latest.zip -d /var/www
+check_exit_status "WordPress extraction"
 
-# Remove the downloaded zip file to clean up
-sudo rm /var/www/latest.zip
-
-# Move WordPress files into the correct directory
+# Move WordPress to the correct location
+echo "Setting up WordPress directory..."
 sudo mv /var/www/wordpress /var/www/html
+sudo rm /var/www/latest.zip
+check_exit_status "WordPress setup"
 
-# Generate a random username and password for MariaDB
-# password=$(tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 25)
-# username=$(tr -dc 'A-Za-z' < /dev/urandom | head -c 25)
-username=DB_USERNAME
-password=DB_PASSWORD
+# Create database in RDS
+echo "Creating database '$db_username' on RDS..."
+mysql -h $rds_edpoint -u $db_username -p$db_password -e "CREATE DATABASE IF NOT EXISTS $db_username;"
+check_exit_status "Database creation"
 
-# Store the credentials in creds.txt
-echo $password > creds.txt
-echo $username >> creds.txt
-
-# Create the database and user in MariaDB
-sudo mysql -e "CREATE DATABASE IF NOT EXISTS $username"
-if [ $? -eq 0 ]; then
-    echo "Database $username created or already exists."
-else
-    echo "Failed to create a database."
-    exit 1
-fi
-
-# Create the user and set the password
-sudo mysql -e "CREATE USER '$username'@'localhost' IDENTIFIED BY '$password'"
-if [ $? -eq 0 ]; then
-    echo "User $username created successfully."
-else
-    echo "Failed to create user."
-    exit 1
-fi
-
-# Grant the user full privileges on their database
-sudo mysql -e "GRANT ALL PRIVILEGES ON $username.* TO '$username'@'localhost'"
-if [ $? -eq 0 ]; then
-    echo "Privileges granted to $username."
-else
-    echo "Failed to grant privileges."
-    exit 1
-fi
-
-# Flush privileges to apply the changes
-sudo mysql -e "FLUSH PRIVILEGES"
-if [ $? -eq 0 ]; then
-    echo "Privileges flushed successfully."
-else
-    echo "Failed to flush privileges."
-    exit 1
-fi
-
-echo "Database and user setup completed successfully."
-
-# sudo wget -O /var/www/html/wp-config.php https://wp-s3-storage.s3.us-east-1.amazonaws.com/wp-config.php
-
-# Move the sample wp-config file to wp-config.php
+# Set up wp-config.php
+echo "Configuring WordPress..."
 sudo mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
+sudo sed -i "s/database_name_here/$db_username/g" /var/www/html/wp-config.php
+sudo sed -i "s/username_here/$db_username/g" /var/www/html/wp-config.php
+sudo sed -i "s/password_here/$db_password/g" /var/www/html/wp-config.php
+sudo sed -i "s/localhost/$rds_edpoint/g" /var/www/html/wp-config.php
 
-# Secure the wp-config.php file with proper permissions
-sudo chmod 640 /var/www/html/wp-config.php 
+# Secure the wp-config.php file
+echo "Securing WordPress configuration..."
+sudo chmod 640 /var/www/html/wp-config.php
 sudo chown -R www-data:www-data /var/www/html
+check_exit_status "WordPress configuration security"
 
-# Replace placeholder values with actual credentials in wp-config.php
-sudo sed -i "s/password_here/$password/g" /var/www/html/wp-config.php
-sudo sed -i "s/username_here/$username/g" /var/www/html/wp-config.php
-sudo sed -i "s/database_name_here/$username/g" /var/www/html/wp-config.php
-
-echo "WordPress configuration completed. You can now visit your site."
-
+echo "WordPress setup is complete. You can now visit your site."

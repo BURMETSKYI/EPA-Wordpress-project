@@ -51,8 +51,8 @@ jobs:
         cat ./cloudflare-dns.sh  # Print file contents to confirm the edits
 
         echo "Editing MariaDB variables in wordpress-install.sh..."
-        sed -i 's/password/${{ secrets.DB_PASSWORD }}/g' ./wordpress-install.sh
-        sed -i 's/username/${{ secrets.DB_USERNAME }}/g' ./wordpress-install.sh
+        sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./wordpress-install.sh
+        sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./wordpress-install.sh
         cat ./wordpress-install.sh  # Print file contents to confirm the edits
         
     - name: Copy files to VM

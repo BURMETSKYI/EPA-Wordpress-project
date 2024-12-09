@@ -21,8 +21,8 @@ sudo mv /var/www/wordpress /var/www/html
 # Generate a random username and password for MariaDB
 # password=$(tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 25)
 # username=$(tr -dc 'A-Za-z' < /dev/urandom | head -c 25)
-username = DB_USERNAME
-password = DB_PASSWORD
+username=DB_USERNAME
+password=DB_PASSWORD
 
 # Store the credentials in creds.txt
 echo $password > creds.txt

@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template to create an EC2 t2.micro instance running Ubuntu 24.04 LTS in us-east-1
+Description: CloudFormation template to create an EC2 t2.micro instance running Ubuntu 24.04 LTS in us-east-1 and associate an existing Elastic IP
 
 Resources:
   MyEC2Instance:
@@ -11,6 +11,15 @@ Resources:
       SecurityGroupIds:
         - sg-01b79acc0eafe9d24
       SubnetId: subnet-0ee8a1e533bf483cc
+      Tags:
+        - Key: Name
+          Value: MyUbuntuInstance
+
+  EIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref MyEC2Instance
+      EIP: eipalloc-087b95a143835a1a4
 
 Outputs:
   InstanceId:

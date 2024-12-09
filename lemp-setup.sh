@@ -13,18 +13,20 @@ sudo systemctl enable nginx
 sudo systemctl status nginx >> nginx_mariadb_php_test.txt
 
 # Install MariaDB server (MySQL-compatible database)
-sudo apt install mariadb-server -y
+# sudo apt install mariadb-server -y
 
 # Start MariaDB service
-sudo systemctl start mariadb
+# sudo systemctl start mariadb
 
 
 # Enable MariaDB service to start on boot
-sudo systemctl enable mariadb
+# sudo systemctl enable mariadb
 
 # Check the status of MariaDB and log it into a file for reference
-sudo systemctl status mariadb >> nginx_mariadb_php_test.txt
+# sudo systemctl status mariadb >> nginx_mariadb_php_test.txt
 
+# Install MariaDB client (MySQL-compatible database)
+sudo apt install mariadb-client -y
 # Install PHP and required PHP modules for a LEMP stack (Linux, Nginx, MariaDB, PHP)
 sudo apt -y install php php-cli php-common php-imap php-fpm php-snmp php-xml php-zip php-mbstring php-curl php-mysqli php-gd php-intl
 

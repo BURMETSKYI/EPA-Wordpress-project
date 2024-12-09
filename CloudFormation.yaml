@@ -13,13 +13,13 @@ Resources:
       SubnetId: subnet-0ee8a1e533bf483cc
       Tags:
         - Key: Name
-          Value: MyUbuntuInstance
+          Value: WP-blue
 
   EIPAssociation:
     Type: AWS::EC2::EIPAssociation
     Properties:
       InstanceId: !Ref MyEC2Instance
-      EIP: eipalloc-087b95a143835a1a4
+      AllocationId: eipalloc-0ba462954d781b2fe
 
 Outputs:
   InstanceId:

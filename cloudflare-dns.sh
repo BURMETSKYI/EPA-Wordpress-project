@@ -6,7 +6,7 @@ domain=S_DOMAIN
 elastic_ip=S_ELASTIC_IP
 # Verify Cloudflare API Token
 curl -X GET "https://api.cloudflare.com/client/v4/user/tokens/verify" \
-     -H "Authorization: Bearer kWedyJSHRiryz53nkYGalTTglK1XkVxW_yjWM3ib" \
+     -H "Authorization: Bearer $CF_API" \
      -H "Content-Type:application/json"
 
 # Cloudflare API and Zone Info

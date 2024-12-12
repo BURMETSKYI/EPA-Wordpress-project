@@ -38,7 +38,7 @@ sudo mv /var/www/wordpress /var/www/html
 sudo rm /var/www/latest.zip
 check_exit_status "WordPress setup"
 
-# Create database in RDS
+# Create or connect to existing database in RDS
 echo "Creating database '$db_username' on RDS..."
 mysql -h $rds_edpoint -u $db_username -p$db_password -e "CREATE DATABASE IF NOT EXISTS $db_username;"
 check_exit_status "Database creation"

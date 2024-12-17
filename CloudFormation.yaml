@@ -7,7 +7,7 @@ Resources:
     Properties:
       InstanceType: t2.micro
       ImageId: ami-05c172c7f0d3aed00
-      KeyName: zabbix1
+      KeyName: epa-lemp
       SecurityGroupIds:
         - sg-0d398eec1c6b95a6e
       SubnetId: subnet-0d32b4be618fe4343

@@ -11,6 +11,7 @@ Resources:
       SecurityGroupIds:
         - sg-0d398eec1c6b95a6e
       SubnetId: subnet-0d32b4be618fe4343
+      IamInstanceProfile: s3fs-role
       Tags:
         - Key: Name
           Value: WP-blue

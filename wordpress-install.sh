@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Constants
-rds_edpoint=RDS_ENDPOINT # Replace with your RDS endpoint
-db_username=DB_USERNAME   # Replace with your RDS admin username
-db_password=DB_PASSWORD   # Replace with your RDS admin password
+rds_edpoint=RDS_ENDPOINT  # Replace with RDS endpoint
+db_username=DB_USERNAME   # Replace with RDS admin username
+db_password=DB_PASSWORD   # Replace with RDS admin password
+storage_url=STORAGE_URL   # Replace with persistent storage url
 
 # Functions for error handling
 function check_exit_status {
@@ -13,7 +14,7 @@ function check_exit_status {
     fi
 }
 
-# Install necessary packages
+# Install mariadb-client
 echo "Installing required packages..."
 sudo apt update
 sudo apt -y install unzip wget mariadb-client
@@ -58,3 +59,12 @@ sudo chown -R www-data:www-data /var/www/html
 check_exit_status "WordPress configuration security"
 
 echo "WordPress setup is complete. You can now visit your site."
+
+# S3fuse mount of persistent content storage  
+mkdir -p /home/ubuntu/s3-epa
+sudo chown ubuntu:ubuntu /home/ubuntu/s3-epa
+sudo chmod 755 /home/ubuntu/s3-epa
+sudo apt install s3fs
+sudo sed -i 's/^#user_allow_other/user_allow_other/' /etc/fuse.conf
+s3fs s3-epa /home/ubuntu/s3-epa -o iam_role=auto -o endpoint=eu-west-2 -o url= -o allow_other -o use_path_request_style -o nonempty
+

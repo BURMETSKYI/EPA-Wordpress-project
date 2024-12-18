@@ -51,12 +51,10 @@ jobs:
         cat ./cloudflare-dns.sh  # Print file contents to confirm the edits
 
         echo "Editing MariaDB variables in wordpress-install.sh..."
-        esc_storage_url=$(printf '%s\n' "${{ secrets.S_STORAGE_URL }}" | sed 's:[\\/&]:\\&:g')
-
         sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./wordpress-install.sh
         sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./wordpress-install.sh
         sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./wordpress-install.sh
-        sed -i 's/STORAGE_URL/$esc_storage_url/g' ./wordpress-install.sh
+        sed -i 's|STORAGE_URL|'"${{ secrets.S_STORAGE_URL }}"'|g' ./wordpress-install.sh
         cat ./wordpress-install.sh  # Print file contents to confirm the edits
         
     - name: Copy files to VM

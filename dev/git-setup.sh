@@ -26,11 +26,6 @@ echo "Running apt upgrade..." | tee -a $LOG_FILE
 sudo apt-get upgrade -y
 check_exit_status "apt upgrade"
 
-# git clone repository
-# echo "Cloning GitHub repository..." | tee -a $LOG_FILE
-#sudo git clone https://github.com/BURMETSKYI/EPA-Wordpress-project.git /root/EPA-Wordpress-project
-# check_exit_status "git clone"
-
 # sudo chmod 
 echo "Changing permissions of the cloned repository..." | tee -a $LOG_FILE
 sudo chmod -R 755 /home/ubuntu/EPA-Wordpress-project/
@@ -38,8 +33,3 @@ check_exit_status "chmod"
 
 sudo touch /home/ubuntu/nginx_mariadb_php_test.txt # Unit tests log file
 echo "Unit test log file created..." | tee -a $LOG_FILE
-
-# lemp-setup.sh
-# echo "Running lemp-setup.sh script..." | tee -a $LOG_FILE
-# sudo bash /root/EPA-Wordpress-project/lemp-setup.sh
-# check_exit_status "lemp-setup.sh script"

@@ -1,4 +1,7 @@
 # S3fuse mount of persistent content storage
+
+storage_url=STORAGE_URL   # Replace with persistent storage url
+
 # Setting up a directory for the S3 mount point
 echo "Setting up persistent storage..."
 mkdir -p /home/ubuntu/s3-epa

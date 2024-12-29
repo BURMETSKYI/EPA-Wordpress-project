@@ -6,31 +6,35 @@ on:
       - main
   
 jobs:
-  deploy:
+  deploy_to_dev:
     runs-on: ubuntu-latest
+    environment: Development  # Specify the environment here
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Debug SSH connection
-      env: 
-        ELASTIC_IP: ${{ secrets.ELASTIC_IP }}
+    - name: Set up SSH private key
       run: |
-        echo "Testing SSH connection..."
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
         chmod 600 private_key
-    
-        echo "Checking key permissions..."
-        ls -l private_key
-    
-        echo "Testing SSH connection to $ELASTIC_IP as ${{ secrets.SSH_USERNAME }} on port ${{ secrets.SSH_PORT }}..."
-        ssh -vvv -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@$ELASTIC_IP "echo 'SSH Connection Successful'"
-    
-    - name: Copy files to VM
-      env: 
-        ELASTIC_IP: ${{ secrets.ELASTIC_IP }}
+        echo "Private key set up successfully."
+
+    - name: Debug SSH connection
+      env:
+        ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
+        SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
-        echo "Copying files to VM..."
-        scp -r -i private_key -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} "${PWD}/" ${{ secrets.SSH_USERNAME }}@$ELASTIC_IP:~
+        echo "Testing SSH connection..."
+        ssh -vvv -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "echo 'SSH Connection Successful'"
+
+    - name: Copy files to Development VM
+      env:
+        ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
+        SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
+      run: |
+        echo "Copying files to Development VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~
         echo "Files copied successfully."

@@ -36,4 +36,4 @@ jobs:
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
         echo "Copying files to Development VM..."
-        scp -r -i private_key -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} "${PWD}/" ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }}:~/EPA-Wordpress-project/
+        scp -r -i private_key -o StrictHostKeyChecking=no -P $SSH_PORT "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~/EPA-Wordpress-project/

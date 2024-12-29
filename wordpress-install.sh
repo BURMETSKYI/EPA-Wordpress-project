@@ -4,7 +4,6 @@
 rds_edpoint=RDS_ENDPOINT  # Replace with RDS endpoint
 db_username=DB_USERNAME   # Replace with RDS admin username
 db_password=DB_PASSWORD   # Replace with RDS admin password
-storage_url=STORAGE_URL   # Replace with persistent storage url
 
 # Functions for error handling
 function check_exit_status {

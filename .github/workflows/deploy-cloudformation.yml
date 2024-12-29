@@ -26,6 +26,9 @@ jobs:
       - name: Deploy CloudFormation stack
         run: |
           STACK_NAME="WP-BlUE-$(date +'%Y%m%d-%H%M%S')"
+
+          echo "Deploying CloudFormation stack with name $STACK_NAME"
+          
           aws cloudformation deploy \
             --template-file CloudFormation.yml \  
             --stack-name "$STACK_NAME"

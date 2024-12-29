@@ -54,8 +54,12 @@ jobs:
         sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./wordpress-install.sh
         sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./wordpress-install.sh
         sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./wordpress-install.sh
-        sed -i 's|STORAGE_URL|'"${{ secrets.S_STORAGE_URL }}"'|g' ./wordpress-install.sh
         cat ./wordpress-install.sh  # Print file contents to confirm the edits
+
+        echo "Editing persistent storage variables in storage-setup.sh..."
+        sed -i 's|STORAGE_URL|'"${{ secrets.S_STORAGE_URL }}"'|g' ./storage-setup.sh
+        cat ./storage-setup.sh  # Print file contents to confirm the edits
+
         
     - name: Copy files to VM
       run: |
@@ -87,10 +91,15 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/wordpress-install.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
 
+    - name: Run storage-setup.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/storage-setup.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
     - name: Run certbot-ssl-install.sh on the VM
       run: |
         echo "Running certbot-ssl-install.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
-
         

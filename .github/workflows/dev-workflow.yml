@@ -29,6 +29,51 @@ jobs:
         echo "Testing SSH connection..."
         ssh -vvv -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "echo 'SSH Connection Successful'"
 
+    - name: Edit CF Variables
+      env:
+        ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
+        SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
+        SECRET_CF_API: ${{ secrets.SECRET_CF_API }}
+        CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+        EMAIL: ${{ secrets.EMAIL }}
+        DOMAIN: ${{ secrets.DOMAIN }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_USERNAME: ${{ secrets.DB_USERNAME }}
+        S_STORAGE_URL: ${{ secrets.S_STORAGE_URL }}
+        
+      run: |
+        echo "Editing Cloudflare variables in lemp-setup.sh..."
+        sed -i 's/S_DOMAIN/$DOMAIN/g' ./lemp-setup.sh
+        sed -i 's/S_ELASTIC_IP/$ELASTIC_IP/g' ./lemp-setup.sh
+        sed -i 's/S_CF_API/$SECRET_CF_API/g' ./lemp-setup.sh
+        sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./lemp-setup.sh
+        cat ./lemp-setup.sh  # Print file contents to confirm the edits
+        
+        echo "Editing Cloudflare variables in certbot-ssl-install.sh..."
+        sed -i 's/S_EMAIL/$EMAIL/g' ./certbot-ssl-install.sh
+        sed -i 's/S_DOMAIN/$DOMAIN/g' ./certbot-ssl-install.sh
+        cat ./certbot-ssl-install.sh  # Print file contents to confirm the edits
+
+        # echo "Editing SERVERNAME variable in ngnix.conf..."
+        # sed -i 's/SERVERNAME/$DOMAIN/g' ./ngnix.conf
+        # cat ./ngnix.conf  # Print file contents to confirm the edits
+
+        echo "Editing Cloudflare variables in cloudflare-dns.sh..."
+        sed -i 's/S_DOMAIN/$DOMAIN/g' ./cloudflare-dns.sh
+        sed -i 's/S_ELASTIC_IP/$ELASTIC_IP/g' ./cloudflare-dns.sh
+        sed -i 's/S_CF_API/$SECRET_CF_API/g' ./cloudflare-dns.sh
+        sed -i 's/S_CF_ZONE_ID/$CF_ZONE_ID/g' ./cloudflare-dns.sh
+        cat ./cloudflare-dns.sh  # Print file contents to confirm the edits
+
+        echo "Editing MariaDB variables in wordpress-install.sh..."
+        sed -i 's/DB_PASSWORD/$DB_PASSWORD/g' ./wordpress-install.sh
+        sed -i 's/DB_USERNAME/$DB_USERNAME/g' ./wordpress-install.sh
+
+        echo "Editing persistent storage variables in wordpress-install.sh..."
+        sed -i 's|STORAGE_URL|'"$S_STORAGE_URL"'|g' ./wordpress-install.sh
+        cat ./wordpress-install.sh  # Print file contents to confirm the edits
+
     - name: Copy files to Development VM
       env:
         ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
@@ -37,3 +82,6 @@ jobs:
       run: |
         echo "Copying files to Development VM..."
         scp -r -i private_key -o StrictHostKeyChecking=no -P $SSH_PORT "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~/EPA-Wordpress-project/
+        echo "Files copied successfully."
+
+      

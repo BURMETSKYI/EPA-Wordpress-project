@@ -44,7 +44,7 @@ jobs:
         
       run: |
         echo "Editing Cloudflare variables in lemp-setup.sh..."
-        sed -i "s/S_DOMAIN/$DOMAIN/g" ./lemp-setup.sh
+        sed -i "s/S_DOMAIN/$DOMAIN/g" ./dev/lemp-setup.sh
         sed -i "s/S_ELASTIC_IP/$ELASTIC_IP/g" ./dev/lemp-setup.sh
         sed -i "s/S_CF_API/$SECRET_CF_API/g" ./dev/lemp-setup.sh
         sed -i "s/S_CF_ZONE_ID/$CF_ZONE_ID/g" ./dev/lemp-setup.sh

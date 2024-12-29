@@ -26,3 +26,9 @@ jobs:
     
         echo "Testing SSH connection to $ELASTIC_IP as ${{ secrets.SSH_USERNAME }} on port ${{ secrets.SSH_PORT }}..."
         ssh -vvv -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@$ELASTIC_IP "echo 'SSH Connection Successful'"
+    
+    - name: Copy files to VM
+      run: |
+        echo "Copying files to VM..."
+        scp -r -i private_key -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} "${PWD}/" ${{ secrets.SSH_USERNAME }}@$ELASTIC_IP:~
+        echo "Files copied successfully."

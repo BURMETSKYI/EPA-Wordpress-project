@@ -59,14 +59,3 @@ sudo chown -R www-data:www-data /var/www/html
 check_exit_status "WordPress configuration security"
 
 echo "WordPress setup is complete. You can now visit your site."
-
-# S3fuse mount of persistent content storage
-echo "Setting up persistent storage..."
-mkdir -p /home/ubuntu/s3-epa
-sudo chown ubuntu:ubuntu /home/ubuntu/s3-epa
-sudo chmod 755 /home/ubuntu/s3-epa
-sudo apt install s3fs -y
-sudo sed -i 's/^#user_allow_other/user_allow_other/' /etc/fuse.conf
-s3fs s3-epa /home/ubuntu/s3-epa -o iam_role=auto -o endpoint=eu-west-2 -o url=$storage_url -o allow_other -o use_path_request_style -o nonempty
-check_exit_status "S3 storage mount"
-

@@ -28,6 +28,8 @@ jobs:
         ssh -vvv -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@$ELASTIC_IP "echo 'SSH Connection Successful'"
     
     - name: Copy files to VM
+      env: 
+        ELASTIC_IP: ${{ secrets.ELASTIC_IP }}
       run: |
         echo "Copying files to VM..."
         scp -r -i private_key -o StrictHostKeyChecking=no -P ${{ secrets.SSH_PORT }} "${PWD}/" ${{ secrets.SSH_USERNAME }}@$ELASTIC_IP:~

@@ -36,5 +36,5 @@ jobs:
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
         echo "Copying files to Development VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~
+        rsync -av --exclude='.git' -e "ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT" "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~/ # Make sure you're copying to the correct remote path
         echo "Files copied successfully."

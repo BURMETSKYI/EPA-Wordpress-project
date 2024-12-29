@@ -28,4 +28,4 @@ jobs:
           STACK_NAME="WP-BlUE-$(date +'%Y%m%d-%H%M%S')"
           aws cloudformation deploy \
             --template-file CloudFormation.yml \  
-            --stack-name $STACK_NAME
+            --stack-name "$STACK_NAME"

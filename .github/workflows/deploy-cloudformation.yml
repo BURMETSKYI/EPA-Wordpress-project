@@ -25,7 +25,7 @@ jobs:
       # Deploy CloudFormation stack with dynamic stack name
       - name: Deploy CloudFormation stack
         run: |
-          STACK_NAME="WP-BlUE-${{ github.run_id }}" 
+          STACK_NAME="WP-BlUE-$('%Y%m%d-%H%M%S')"
           aws cloudformation deploy \
             --template-file CloudFormation.yml \  
-            --stack-name $STACK_NAME            
+            --stack-name $STACK_NAME

@@ -80,4 +80,13 @@ jobs:
         scp -r -i private_key -o StrictHostKeyChecking=no -P $SSH_PORT "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~/EPA-Wordpress-project/
         echo "Files copied successfully."
 
+    - name: Run git-setup.sh on the VM
+      env:
+        ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
+        SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
+      run: |
+        echo "Running git-setup.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/git-setup.sh || { echo "Script failed"; exit 1; }' 
+        echo "Script executed successfully."
       

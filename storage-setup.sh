@@ -13,7 +13,7 @@ storage_url=STORAGE_URL   # Replace with persistent storage URL
 
 # Define the mount point
 MOUNT_POINT="/home/ubuntu/s3-epa"
-WORDPRESS_CONTENT="/var/www/html/wp-content"
+WORDPRESS_CONTENT="/var/www/html/wp-content/"
 
 
 # Setting up a directory for the S3 mount point
@@ -40,7 +40,8 @@ echo "Removing existing wp-content"
 sudo rm -rf $WORDPRESS_CONTENT
 check_exit_status "Folder wp-content removed"
 
-
+# Copy the wp-content from the S3 bucket to the WordPress content directory
+echo "Copying wp-content from S3 to $WORDPRESS_CONTENT..."
 sudo cp -r $MOUNT_POINT/wp-content/ $WORDPRESS_CONTENT
 check_exit_status "Copying wp-content"
 

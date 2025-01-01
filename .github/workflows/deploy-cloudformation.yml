@@ -42,6 +42,15 @@ jobs:
             exit 1
           fi
 
-          # Run the CloudFormation deploy command
-          aws cloudformation deploy --template-file CloudFormation.yaml --stack-name "$STACK_NAME"
+          # Attempt to disassociate existing Elastic IP
+          echo "Disassociating Elastic IP if associated..."
+          aws ec2 disassociate-address --association-id eipassoc-0112571b356dbbb79 || echo "Disassociation failed or not required."
 
+          # Deploy the CloudFormation stack
+          echo "Deploying CloudFormation stack..."
+          aws cloudformation deploy --template-file CloudFormation.yaml --stack-name "$STACK_NAME" || {
+            echo "CloudFormation stack deployment failed!"
+            exit 1
+          }
+
+          echo "CloudFormation stack deployed successfully!"

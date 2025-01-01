@@ -38,7 +38,7 @@ jobs:
 
           # Ensure the CloudFormation template file exists
           if [ ! -f CloudFormation.yml ]; then
-            echo "Error: CloudFormation.yml not found!"
+            echo "Error: CloudFormation.yaml not found!"
             exit 1
           fi
 

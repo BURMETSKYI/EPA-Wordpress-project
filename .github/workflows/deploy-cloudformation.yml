@@ -42,9 +42,9 @@ jobs:
             exit 1
           fi
 
-          # Attempt to disassociate existing Elastic IP
+          # Disassociate existing Elastic IP
           echo "Disassociating Elastic IP if associated..."
-          aws ec2 disassociate-address --association-id eipassoc-0112571b356dbbb79 || echo "Disassociation failed or not required."
+          aws ec2 disassociate-address --association-id $(aws ec2 describe-addresses --allocation-ids eipalloc-0c8847552fb41b281 --query 'Addresses[0].AssociationId' --output text)
 
           # Deploy the CloudFormation stack
           echo "Deploying CloudFormation stack..."

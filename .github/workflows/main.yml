@@ -3,7 +3,7 @@ name: Production
 on:
   workflow_run:
     workflows:
-      - Deploy CloudFormation Stack
+      - BlueEnv Deploy CloudFormation Stack
     types:
       - completed
       

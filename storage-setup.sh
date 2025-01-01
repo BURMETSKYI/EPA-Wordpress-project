@@ -32,7 +32,7 @@ check_exit_status "FUSE configuration"
 
 # Mount the S3 bucket to the local directory
 echo "Mounting S3 bucket to $MOUNT_POINT..."
-s3fs s3-epa $MOUNT_POINT -o iam_role=auto -o endpoint=eu-west-2 -o url=$storage_url -o allow_other -o use_path_request_style -o nonempty -o reconnect -o time_out=300 -o curldbg -o dbglevel=info
+s3fs s3-epa $MOUNT_POINT -o iam_role=auto -o endpoint=eu-west-2 -o url=$storage_url -o allow_other -o use_path_request_style -o nonempty -o time_out=300 -o curldbg -o dbglevel=info
 check_exit_status "S3 storage mount"
 
 # Replace WordPress content directory with the one from the persistent storage

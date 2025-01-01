@@ -25,7 +25,7 @@ jobs:
       # Deploy CloudFormation stack with dynamic stack name
       - name: Deploy CloudFormation stack
         run: |
-          STACK_NAME="WP-BlUE-$(date +'%Y%m%d-%H%M%S')"
+          STACK_NAME="WP-GREEN-$(date +'%Y%m%d-%H%M%S')"
 
           # Debugging: Print out the value of STACK_NAME to verify it's correct
           echo "STACK_NAME is: $STACK_NAME"
@@ -70,7 +70,7 @@ jobs:
           
           # Deploy the CloudFormation stack
           echo "Deploying CloudFormation stack..."
-          aws cloudformation deploy --template-file CloudFormation.yaml --stack-name "$STACK_NAME" || {
+          aws cloudformation deploy --template-file /dev/CloudFormation.yml --stack-name "$STACK_NAME" || {
             echo "CloudFormation stack deployment failed!"
             exit 1
           }

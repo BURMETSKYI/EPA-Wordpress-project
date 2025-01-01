@@ -1,0 +1,78 @@
+name: GreenEnv Deploy CloudFormation Stack
+
+on:
+  push:
+    branches:
+      - main  
+      
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository to get the CloudFormation template
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up AWS credentials using the stored secrets
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Deploy CloudFormation stack with dynamic stack name
+      - name: Deploy CloudFormation stack
+        run: |
+          STACK_NAME="WP-BlUE-$(date +'%Y%m%d-%H%M%S')"
+
+          # Debugging: Print out the value of STACK_NAME to verify it's correct
+          echo "STACK_NAME is: $STACK_NAME"
+          
+          # Check if STACK_NAME is empty
+          if [ -z "$STACK_NAME" ]; then
+            echo "Error: STACK_NAME is empty!"
+            exit 1
+          fi
+
+          # Ensure the CloudFormation template file exists
+          if [ ! -f CloudFormation.yaml ]; then
+            echo "Error: CloudFormation.yaml not found!"
+            exit 1
+          fi
+
+          # Get the Instance ID associated with the Elastic IP
+          INSTANCE_ID=$(aws ec2 describe-addresses --allocation-ids eipalloc-092e331c98b8b9bfa --query 'Addresses[0].InstanceId' --output text)
+          
+          # If there's an associated instance, terminate it
+          if [ "$INSTANCE_ID" != "None" ]; then
+            echo "Terminating instance: $INSTANCE_ID"
+            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID" || {
+              echo "Failed to terminate instance: $INSTANCE_ID"
+              exit 1
+            }
+          else
+            echo "No instance associated with the provided EIP."
+          fi
+          
+          # Disassociate the Elastic IP (EIP) if it's associated
+          echo "Disassociating Elastic IP if associated..."
+          ASSOCIATION_ID=$(aws ec2 describe-addresses --allocation-ids eipalloc-092e331c98b8b9bfa --query 'Addresses[0].AssociationId' --output text)
+          if [ "$ASSOCIATION_ID" != "None" ]; then
+            aws ec2 disassociate-address --association-id "$ASSOCIATION_ID" || {
+              echo "Failed to disassociate Elastic IP."
+              exit 1
+            }
+          else
+            echo "Elastic IP is not associated."
+          fi
+          
+          # Deploy the CloudFormation stack
+          echo "Deploying CloudFormation stack..."
+          aws cloudformation deploy --template-file CloudFormation.yaml --stack-name "$STACK_NAME" || {
+            echo "CloudFormation stack deployment failed!"
+            exit 1
+          }
+
+          echo "CloudFormation stack deployed successfully!"

@@ -1,4 +1,4 @@
-name: Deploy CloudFormation Stack
+name: BlueEnv Deploy CloudFormation Stack
 
 on:
   push:

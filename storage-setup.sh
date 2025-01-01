@@ -36,11 +36,10 @@ s3fs s3-epa $MOUNT_POINT -o iam_role=auto -o endpoint=eu-west-2 -o url=$storage_
 check_exit_status "S3 storage mount"
 
 # Replace WordPress content directory with the one from the persistent storage
-echo "Replacing WordPress content directory with persistent storage..."
-if [ -d "$WORDPRESS_CONTENT" ]; then
-    sudo rm -rf $WORDPRESS_CONTENT
-    check_exit_status "Removing existing wp-content"
-fi
+echo "Removing existing wp-content"
+sudo rm -rf $WORDPRESS_CONTENT
+check_exit_status "Folder wp-content removed"
+
 
 sudo cp -r $MOUNT_POINT/wp-content/ $WORDPRESS_CONTENT
 check_exit_status "Copying wp-content"

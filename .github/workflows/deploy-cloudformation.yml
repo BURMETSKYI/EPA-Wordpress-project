@@ -67,19 +67,6 @@ jobs:
           else
             echo "Elastic IP is not associated."
           fi
-
-          
-          # Disassociate the Elastic IP (EIP) if it's associated
-          echo "Disassociating Elastic IP if associated..."
-          ASSOCIATION_ID=$(aws ec2 describe-addresses --allocation-ids <EIP-Allocation-ID> --query 'Addresses[0].AssociationId' --output text)
-          if [ "$ASSOCIATION_ID" != "None" ]; then
-            aws ec2 disassociate-address --association-id "$ASSOCIATION_ID" || {
-              echo "Failed to disassociate Elastic IP."
-              exit 1
-            }
-          else
-            echo "Elastic IP is not associated."
-          fi
           
           # Deploy the CloudFormation stack
           echo "Deploying CloudFormation stack..."

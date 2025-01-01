@@ -10,7 +10,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 120
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -94,10 +95,14 @@ jobs:
         echo "Script executed successfully."
 
     - name: Run storage-setup.sh on the VM
-      run: |
-        echo "Running certbot-ssl-install.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/storage-setup.sh || { echo "Script failed"; exit 1; }'
-        echo "Script executed successfully."
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        command: |
+          echo "Running certbot-ssl-install.sh on VM..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/storage-setup.sh || { echo "Script failed"; exit 1; }'
+          echo "Script executed successfully."
 
     - name: Run certbot-ssl-install.sh on the VM
       run: |

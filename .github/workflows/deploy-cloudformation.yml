@@ -42,10 +42,29 @@ jobs:
             exit 1
           fi
 
-          # Disassociate existing Elastic IP
-          echo "Disassociating Elastic IP if associated..."
-          aws ec2 disassociate-address --association-id $(aws ec2 describe-addresses --allocation-ids eipalloc-0c8847552fb41b281 --query 'Addresses[0].AssociationId' --output text)
+          # Get the Instance ID associated with the Elastic IP
+          INSTANCE_ID=$(aws ec2 describe-addresses --allocation-ids <EIP-Allocation-ID> --query 'Addresses[0].InstanceId' --output text)
 
+          # If there's an associated instance, terminate it
+          if [ "$INSTANCE_ID" != "None" ]; then
+            echo "Terminating instance: $INSTANCE_ID"
+            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
+          else
+            echo "No instance associated with the provided EIP."
+          fi
+          
+          # Disassociate the Elastic IP (EIP) if it's associated
+          echo "Disassociating Elastic IP if associated..."
+          ASSOCIATION_ID=$(aws ec2 describe-addresses --allocation-ids <EIP-Allocation-ID> --query 'Addresses[0].AssociationId' --output text)
+          if [ "$ASSOCIATION_ID" != "None" ]; then
+            aws ec2 disassociate-address --association-id "$ASSOCIATION_ID" || {
+              echo "Failed to disassociate Elastic IP."
+              exit 1
+            }
+          else
+            echo "Elastic IP is not associated."
+          fi
+          
           # Deploy the CloudFormation stack
           echo "Deploying CloudFormation stack..."
           aws cloudformation deploy --template-file CloudFormation.yaml --stack-name "$STACK_NAME" || {

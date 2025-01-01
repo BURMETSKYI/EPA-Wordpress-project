@@ -27,6 +27,7 @@ jobs:
         run: |
           STACK_NAME="WP-BlUE-$(date +'%Y%m%d-%H%M%S')"
 
+          # Debugging: Print out the value of STACK_NAME to verify it's correct
           echo "STACK_NAME is: $STACK_NAME"
           
           # Check if STACK_NAME is empty
@@ -34,6 +35,13 @@ jobs:
             echo "Error: STACK_NAME is empty!"
             exit 1
           fi
-          
+
+          # Ensure the CloudFormation template file exists
+          if [ ! -f CloudFormation.yml ]; then
+            echo "Error: CloudFormation.yml not found!"
+            exit 1
+          fi
+
+          # Run the CloudFormation deploy command
           aws cloudformation deploy --template-file CloudFormation.yaml --stack-name "$STACK_NAME"
 

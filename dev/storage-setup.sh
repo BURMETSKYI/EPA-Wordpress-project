@@ -31,6 +31,23 @@ wait_for_mount() {
     return 1
 }
 
+# System optimizations
+setup_system_optimizations() {
+    # Create cache directories
+    sudo mkdir -p /tmp/s3fs_cache
+    sudo chmod 777 /tmp/s3fs_cache
+    
+    # Optimize I/O scheduler
+    echo deadline | sudo tee /sys/block/xvda/queue/scheduler
+    sudo blockdev --setra 2048 /dev/xvda
+    
+    # Optimize VM parameters
+    sudo sysctl -w vm.dirty_ratio=80
+    sudo sysctl -w vm.dirty_background_ratio=5
+    sudo sysctl -w vm.dirty_expire_centisecs=12000
+}
+
+
 # Set the S3 storage URL
 storage_url=STORAGE_URL   # Replace with persistent storage URL
 
@@ -64,6 +81,10 @@ echo "Configuring FUSE..."
 sudo sed -i 's/^#user_allow_other/user_allow_other/' /etc/fuse.conf
 check_exit_status "FUSE configuration"
 
+echo "Applying system optimizations..."
+setup_system_optimizations
+
+
 # Mount the S3 bucket to the local directory
 echo "Mounting S3 bucket to $MOUNT_POINT..."
 s3fs s3-epa "$MOUNT_POINT" \
@@ -73,11 +94,18 @@ s3fs s3-epa "$MOUNT_POINT" \
     -o allow_other \
     -o use_path_request_style \
     -o nonempty \
-    -o dbglevel=info \
-    -o retries=5 \
-    -o connect_timeout=60 \
+    -o kernel_cache \
+    -o max_stat_cache_size=10000 \
+    -o parallel_count=15 \
+    -o max_background=100 \
+    -o use_cache="$CACHE_DIR" \
+    -o cache_max_size=512 \
+    -o multipart_size=52 \
     -o stat_cache_expire=30 \
     -o enable_noobj_cache \
+    -o connect_timeout=60 \
+    -o readwrite_timeout=60 \
+    -o retries=5 \
     -o umask=0002
 
 # Wait for mount to be ready
@@ -97,7 +125,11 @@ check_exit_status "Folder wp-content removed"
 
 # Copy the wp-content from the S3 bucket to the WordPress content directory
 echo "Copying wp-content from S3 to $WORDPRESS_CONTENT..."
-sudo rsync -av --progress "$MOUNT_POINT/wp-content/" "$WORDPRESS_CONTENT"
+# Optimized rsync with larger block size and parallel compression
+sudo rsync -av --progress \
+    --block-size=512k \
+    --compress-level=1 \
+    "$MOUNT_POINT/wp-content/" "$WORDPRESS_CONTENT"
 check_exit_status "Copying wp-content"
 
 # Set appropriate permissions for the WordPress content directory

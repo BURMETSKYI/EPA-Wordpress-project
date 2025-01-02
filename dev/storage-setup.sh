@@ -87,7 +87,6 @@ setup_system_optimizations
 
 
 # Mount the S3 bucket to the local directory
-echo "Mounting S3 bucket to $MOUNT_POINT..."
 s3fs s3-epa "$MOUNT_POINT" \
     -o iam_role=auto \
     -o endpoint=eu-west-2 \
@@ -98,16 +97,13 @@ s3fs s3-epa "$MOUNT_POINT" \
     -o kernel_cache \
     -o max_stat_cache_size=10000 \
     -o parallel_count=15 \
-    -o max_background=100 \
-    -o use_cache="$CACHE_DIR" \
-    -o cache_max_size=512 \
-    -o multipart_size=52 \
+    -o use_cache="/tmp/s3fs_cache" \
     -o stat_cache_expire=30 \
     -o enable_noobj_cache \
     -o connect_timeout=60 \
-    -o readwrite_timeout=60 \
     -o retries=5 \
     -o umask=0002
+
 
 # Wait for mount to be ready
 wait_for_mount "$MOUNT_POINT"

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Constants
-# rds_edpoint=RDS_ENDPOINT  # Replace with RDS endpoint
+rds_edpoint=RDS_ENDPOINT  # Replace with RDS endpoint
 db_username=DB_USERNAME   # Replace with RDS admin username
 db_password=DB_PASSWORD   # Replace with RDS admin password
 
@@ -39,9 +39,9 @@ sudo rm /var/www/latest.zip
 check_exit_status "WordPress setup"
 
 # Create or connect to existing database in RDS
-# echo "Creating database '$db_username' on RDS..."
-# mysql -h $rds_edpoint -u $db_username -p$db_password -e "CREATE DATABASE IF NOT EXISTS $db_username;"
-# check_exit_status "Database creation"
+echo "Creating database '$db_username' on RDS..."
+mysql -h $rds_edpoint -u $db_username -p$db_password -e "CREATE DATABASE IF NOT EXISTS $db_username;"
+check_exit_status "Database creation"
 
 # Set up wp-config.php
 echo "Configuring WordPress..."
@@ -49,7 +49,7 @@ sudo mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
 sudo sed -i "s/database_name_here/$db_username/g" /var/www/html/wp-config.php
 sudo sed -i "s/username_here/$db_username/g" /var/www/html/wp-config.php
 sudo sed -i "s/password_here/$db_password/g" /var/www/html/wp-config.php
-# sudo sed -i "s/localhost/$rds_edpoint/g" /var/www/html/wp-config.php
+sudo sed -i "s/localhost/$rds_edpoint/g" /var/www/html/wp-config.php
 
 # Secure the wp-config.php file
 echo "Securing WordPress configuration..."

@@ -1,25 +1,19 @@
 #!/bin/bash
-
-# Enable strict error handling
 set -euo pipefail
 
 # Constants
-rds_endpoint=RDS_ENDPOINT  # Replace with RDS endpoint
-db_username=DB_USERNAME   # Replace with RDS admin username
-db_password=DB_PASSWORD   # Replace with RDS admin password
+rds_endpoint="database-1-green-uzyrnz.cfk4aya0a4fd.eu-west-2.rds.amazonaws.com"
+db_username="admin"
+db_password="Ujinsoap1322"
 WP_ROOT="/var/www/html"
+TMP_DIR="/tmp/wordpress_setup"
 
-# Functions for error handling
-function check_exit_status {
+# Function for error handling
+check_exit_status() {
     if [ $? -ne 0 ]; then
-        echo "$1 failed. Exiting."
+        echo "Error: $1 failed. Exiting."
         exit 1
     fi
-}
-
-# Function to generate secure salts
-generate_wp_salts() {
-    curl -s https://api.wordpress.org/secret-key/1.1/salt/
 }
 
 # Function to validate database connection
@@ -29,6 +23,8 @@ validate_db_connection() {
         exit 1
     fi
 }
+
+echo "Starting WordPress installation..."
 
 # Install required packages
 echo "Installing required packages..."
@@ -40,30 +36,28 @@ check_exit_status "Package installation"
 echo "Validating database connection..."
 validate_db_connection
 
-# Clean existing installation
+# Clean existing installation and create temporary directory
 echo "Cleaning up existing WordPress installation..."
 sudo rm -rf "$WP_ROOT"
 sudo mkdir -p "$WP_ROOT"
+mkdir -p "$TMP_DIR"
 
 # Download and extract WordPress
 echo "Downloading latest WordPress..."
-TMP_DIR=$(mktemp -d)
 wget -q -O "$TMP_DIR/latest.zip" https://wordpress.org/latest.zip
 check_exit_status "WordPress download"
 
 echo "Extracting WordPress files..."
 unzip -q "$TMP_DIR/latest.zip" -d "$TMP_DIR"
-sudo cp -r "$TMP_DIR/wordpress/." "$WP_ROOT/"
 check_exit_status "WordPress extraction"
+
+# Move files to the correct location
+echo "Setting up WordPress directory..."
+sudo cp -r "$TMP_DIR/wordpress/"* "$WP_ROOT/"
+check_exit_status "WordPress setup"
 
 # Clean up temporary files
 rm -rf "$TMP_DIR"
-
-# Move WordPress to the correct location
-echo "Setting up WordPress directory..."
-sudo mv /var/www/wordpress /var/www/html
-sudo rm /var/www/latest.zip
-check_exit_status "WordPress setup"
 
 # Create database
 echo "Setting up database..."
@@ -82,27 +76,6 @@ sudo sed -i "s/username_here/$db_username/g" "$WP_ROOT/wp-config.php"
 sudo sed -i "s/password_here/$db_password/g" "$WP_ROOT/wp-config.php"
 sudo sed -i "s/localhost/$rds_endpoint/g" "$WP_ROOT/wp-config.php"
 
-# Add security enhancements and performance optimizations
-sudo cat >> "$WP_ROOT/wp-config.php" <<EOF
-
-/* Security Enhancements */
-define('DISALLOW_FILE_EDIT', true);
-define('WP_AUTO_UPDATE_CORE', 'minor');
-define('FORCE_SSL_ADMIN', true);
-
-/* Performance Optimizations */
-define('WP_CACHE', true);
-define('WP_MEMORY_LIMIT', '256M');
-define('WP_MAX_MEMORY_LIMIT', '512M');
-
-/* Custom Upload Path */
-define('UPLOADS', 'wp-content/uploads');
-EOF
-
-# Generate and add security salts
-echo "Generating security salts..."
-generate_wp_salts | sudo tee -a "$WP_ROOT/wp-config.php" > /dev/null
-
 # Set proper permissions
 echo "Setting permissions..."
 sudo chown -R www-data:www-data "$WP_ROOT"
@@ -117,5 +90,3 @@ sudo chmod 755 "$WP_ROOT/wp-content/uploads"
 
 echo "WordPress setup completed successfully!"
 echo "Please complete the installation by visiting your site."
-
-

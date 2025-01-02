@@ -124,10 +124,11 @@ check_exit_status "Folder wp-content removed"
 echo "Copying wp-content from S3 to $WORDPRESS_CONTENT..."
 # Optimized rsync with larger block size and parallel compression
 sudo rsync -av --progress \
-    --block-size=512k \
+    --block-size=128k \
     --compress-level=1 \
+    --inplace \
+    --no-whole-file \
     "$MOUNT_POINT/wp-content/" "$WORDPRESS_CONTENT"
-check_exit_status "Copying wp-content"
 
 # Set appropriate permissions for the WordPress content directory
 echo "Setting permissions for wp-content..."

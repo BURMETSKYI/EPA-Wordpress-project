@@ -13,14 +13,14 @@ sudo systemctl enable nginx
 sudo systemctl status nginx >> nginx_mariadb_php_test.txt
 
 # Install MariaDB server (MySQL-compatible database)
-sudo apt install mariadb-server -y
+# sudo apt install mariadb-server -y
 
 # Start MariaDB service
-sudo systemctl start mariadb
+# sudo systemctl start mariadb
 
 
 # Enable MariaDB service to start on boot
-sudo systemctl enable mariadb
+# sudo systemctl enable mariadb
 
 # Check the status of MariaDB and log it into a file for reference
 sudo systemctl status mariadb >> nginx_mariadb_php_test.txt

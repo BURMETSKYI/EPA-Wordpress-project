@@ -4,7 +4,7 @@
 set -euo pipefail
 
 # Constants
-rds_edpoint=RDS_ENDPOINT  # Replace with RDS endpoint
+rds_endpoint=RDS_ENDPOINT  # Replace with RDS endpoint
 db_username=DB_USERNAME   # Replace with RDS admin username
 db_password=DB_PASSWORD   # Replace with RDS admin password
 WP_ROOT="/var/www/html"

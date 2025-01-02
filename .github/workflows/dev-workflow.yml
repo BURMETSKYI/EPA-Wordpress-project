@@ -10,7 +10,7 @@ name: Development
 on:
   push:
     branches:
-      - main 
+      - dev 
   
 jobs:
   deploy_to_dev:
@@ -73,16 +73,13 @@ jobs:
         echo "Editing MariaDB variables in wordpress-install.sh..."
         sed -i "s/DB_PASSWORD/$DB_PASSWORD/g" ./dev/wordpress-install.sh
         sed -i "s/DB_USERNAME/$DB_USERNAME/g" ./dev/wordpress-install.sh
-
+        sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./dev/wordpress-install.sh
+        cat ./dev/wordpress-install.sh  # Print file contents to confirm the edits
+        
         echo "Editing persistent storage variables in storage-setup.sh..."
         sed -i "s|STORAGE_URL|$S_STORAGE_URL|g" ./dev/storage-setup.sh
         cat ./dev/storage-setup.sh  # Print file contents to confirm the edits
-
-        echo "Editing persistent storage variables in dump-import.sh..."
-        sed -i "s/DB_PASSWORD/$DB_PASSWORD/g" ./dev/dump-import.sh
-        sed -i "s/DB_USERNAME/$DB_USERNAME/g" ./dev/dump-import.sh
-        cat ./dev/dump-import.sh  # Print file contents to confirm the edits
-   
+        
     - name: Copy files to Development VM
       env:
         ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
@@ -148,16 +145,6 @@ jobs:
           echo "Running storage-setup.sh on VM..."
           ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/storage-setup.sh || { echo "Script failed"; exit 1; }'
           echo "Script executed successfully."
-
-    - name: Run dump-import.sh on the VM
-      env:
-        ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
-        SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
-        SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
-      run: |
-        echo "Running dump-import.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/dump-import.sh || { echo "Script failed"; exit 1; }'
-        echo "Script executed successfully."
           
     - name: Run certbot-ssl-install.sh on the VM
       env:

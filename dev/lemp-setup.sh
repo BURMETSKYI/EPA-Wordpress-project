@@ -41,7 +41,7 @@ sudo systemctl disable apache2
 # sudo mv /var/www/html/index.html /var/www/html/index.html.old
 
 # Move custom Nginx configuration file to the correct directory for it to be used
-sudo mv /home/ubuntu/EPA-Wordpress-project/nginx.conf /etc/nginx/conf.d/nginx.conf
+sudo mv /home/ubuntu/EPA-Wordpress-project/dev/nginx.conf /etc/nginx/conf.d/nginx.conf
 
 # dns_record=$(curl -s icanhazip.com | sed 's/^/ec2-/; s/\./-/g; s/$/.compute-1.amazonaws.com/')
 

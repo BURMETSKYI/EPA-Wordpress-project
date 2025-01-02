@@ -134,16 +134,18 @@ jobs:
         echo "Script executed successfully."
 
     - name: Run storage-setup.sh on the VM
+      uses: nick-invision/retry@v2
       env:
         ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
         SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
-      uses: nick-invision/retry@v2
       with:
         timeout_minutes: 10
         max_attempts: 3
+        retry_wait_seconds: 30
+        warning_on_retry: true
         command: |
-          echo "Running certbot-ssl-install.sh on VM..."
+          echo "Running storage-setup.sh on VM..."
           ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/storage-setup.sh || { echo "Script failed"; exit 1; }'
           echo "Script executed successfully."
 

@@ -115,7 +115,7 @@ jobs:
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
         echo "Running cloudflare-dns.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT$SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
+        ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
     
     - name: Run wordpress-install.sh on the VM

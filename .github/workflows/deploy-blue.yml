@@ -1,9 +1,9 @@
-name: BlueEnv Deploy CloudFormation Stack
+name: BlueEnv Deploy CloudFormation Stack 
 
 on:
   push:
     branches:
-      - dev  
+      - main  
       
 jobs:
   deploy:

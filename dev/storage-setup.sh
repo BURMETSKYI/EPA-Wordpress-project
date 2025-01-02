@@ -47,6 +47,29 @@ setup_system_optimizations() {
     sudo sysctl -w vm.dirty_expire_centisecs=12000
 }
 
+# Function to copy directory with retry
+copy_directory() {
+    local src_dir=$1
+    local dest_dir=$2
+    local max_retries=3
+    local retry=1
+
+    while [ $retry -le $max_retries ]; do
+        echo "Copying $src_dir (attempt $retry/$max_retries)..."
+        if sudo rsync -av --progress \
+            --timeout=1800 \
+            --inplace \
+            --no-whole-file \
+            --exclude="*.tmp" \
+            "$src_dir/" "$dest_dir/"; then
+            return 0
+        fi
+        echo "Retry $retry failed, waiting before next attempt..."
+        sleep 30
+        ((retry++))
+    done
+    return 1
+}
 
 # Set the S3 storage URL
 storage_url=STORAGE_URL   # Replace with persistent storage URL
@@ -115,20 +138,37 @@ if ! [ -d "$MOUNT_POINT/wp-content" ]; then
     exit 1
 fi
 
-# Replace WordPress content directory with the one from the persistent storage
+# Prepare WordPress directory
 echo "Removing existing wp-content"
 sudo rm -rf $WORDPRESS_CONTENT
-check_exit_status "Folder wp-content removed"
+sudo mkdir -p $WORDPRESS_CONTENT
+check_exit_status "WordPress directory preparation"
 
-# Copy the wp-content from the S3 bucket to the WordPress content directory
-echo "Copying wp-content from S3 to $WORDPRESS_CONTENT..."
-# Optimized rsync with larger block size and parallel compression
-sudo rsync -av --progress \
-    --block-size=128k \
-    --compress-level=1 \
+# Copy files in stages
+echo "Starting staged copy process..."
+
+# Copy main directories separately
+for dir in "themes" "plugins" "uploads"; do
+    if [ -d "$MOUNT_POINT/wp-content/$dir" ]; then
+        sudo mkdir -p "$WORDPRESS_CONTENT/$dir"
+        if ! copy_directory "$MOUNT_POINT/wp-content/$dir" "$WORDPRESS_CONTENT/$dir"; then
+            echo "Error: Failed to copy $dir directory after multiple attempts"
+            exit 1
+        fi
+    fi
+done
+
+# Copy remaining files
+echo "Copying remaining files..."
+if ! sudo rsync -av --progress \
+    --timeout=1800 \
     --inplace \
     --no-whole-file \
-    "$MOUNT_POINT/wp-content/" "$WORDPRESS_CONTENT"
+    --exclude={"themes","plugins","uploads"} \
+    "$MOUNT_POINT/wp-content/" "$WORDPRESS_CONTENT/"; then
+    echo "Error: Failed to copy remaining files"
+    exit 1
+fi
 
 # Set appropriate permissions for the WordPress content directory
 echo "Setting permissions for wp-content..."

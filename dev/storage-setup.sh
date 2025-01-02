@@ -54,6 +54,7 @@ storage_url=STORAGE_URL   # Replace with persistent storage URL
 # Define the mount point
 MOUNT_POINT="/home/ubuntu/s3-epa"
 WORDPRESS_CONTENT="/var/www/html/wp-content/"
+CACHE_DIR="/tmp/s3fs_cache"
 
 
 # Setting up a directory for the S3 mount point

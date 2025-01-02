@@ -69,9 +69,9 @@ jobs:
         sed -i "s/DB_PASSWORD/$DB_PASSWORD/g" ./dev/wordpress-install.sh
         sed -i "s/DB_USERNAME/$DB_USERNAME/g" ./dev/wordpress-install.sh
 
-        echo "Editing persistent storage variables in wordpress-install.sh..."
-        sed -i "s|STORAGE_URL|$S_STORAGE_URL|g" ./dev/wordpress-install.sh
-        cat ./dev/wordpress-install.sh  # Print file contents to confirm the edits
+        echo "Editing persistent storage variables in storage-setup.sh..."
+        sed -i "s|STORAGE_URL|$S_STORAGE_URL|g" ./dev/storage-setup.sh
+        cat ./dev/storage-setup.sh  # Print file contents to confirm the edits
    
     - name: Copy files to Development VM
       env:

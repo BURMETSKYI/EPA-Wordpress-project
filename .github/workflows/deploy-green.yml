@@ -3,7 +3,7 @@ name: GreenEnv Deploy CloudFormation Stack
 on:
   push:
     branches:
-      - dev  
+      - main  
       
 jobs:
   deploy:

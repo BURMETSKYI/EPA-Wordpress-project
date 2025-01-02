@@ -10,7 +10,7 @@ name: Development
 on:
   push:
     branches:
-      - dev 
+      - main 
   
 jobs:
   deploy_to_dev:

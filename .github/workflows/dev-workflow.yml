@@ -10,7 +10,7 @@ name: Development
 on:
   push:
     branches:
-      - dev 
+      - main 
   
 jobs:
   deploy_to_dev:
@@ -86,9 +86,38 @@ jobs:
         SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
-        echo "Copying files to Development VM..."
-        scp -r -i private_key -o StrictHostKeyChecking=no -P $SSH_PORT "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~/EPA-Wordpress-project/
-        echo "Files copied successfully."
+        echo "Starting file transfer to Development VM..."
+   
+        # Check and remove existing directory if it exists
+        echo "Checking for existing EPA-Wordpress-project directory..."
+        if ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "test -d ~/EPA-Wordpress-project"; then
+          echo "Found existing directory, removing it..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "sudo rm -rf ~/EPA-Wordpress-project"
+        fi
+     
+        # Copy files using rsync
+        echo "Copying files..."
+        if rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT" \
+          --exclude '.git' \
+          --exclude 'node_modules' \
+          --exclude '.env' \
+          --exclude 'private_key' \
+          --exclude '.github' \
+          "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~/EPA-Wordpress-project/; then
+          echo "Files copied successfully"
+        else
+          echo "Error: File transfer failed"
+          exit 1
+        fi
+        
+        # Verify file transfer
+        echo "Verifying file transfer..."
+        if ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "test -d ~/EPA-Wordpress-project/dev/ && [ -n \"$(ls -A ~/EPA-Wordpress-project/dev/)\" ]"; then
+          echo "Directory verification successful and not empty"
+        else
+          echo "Error: Target directory not found or empty after transfer"
+          exit 1
+        fi
 
     - name: Run git-setup.sh on the VM
       env:

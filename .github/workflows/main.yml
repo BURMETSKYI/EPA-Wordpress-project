@@ -125,7 +125,7 @@ jobs:
     - name: Run wordpress-install.sh on the VM
       run: |
         echo "Running wordpress-install.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/wordpress-install.sh || { echo "Script failed"; exit 1; }'
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/wordpress-install.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
         
    # - name: Run storage-setup.sh on the VM

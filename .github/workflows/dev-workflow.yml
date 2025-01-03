@@ -112,7 +112,7 @@ jobs:
         
         # Verify file transfer
         echo "Verifying file transfer..."
-        if ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "test -d ~/EPA-Wordpress-project/dev/ && [ -n \"$(ls -A ~/EPA-Wordpress-project/dev/)\" ]"; then
+        if ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "test -d ~/EPA-Wordpress-project/ && [ -n \"$(ls -A ~/EPA-Wordpress-project/dev/)\" ]"; then
           echo "Directory verification successful and not empty"
         else
           echo "Error: Target directory not found or empty after transfer"

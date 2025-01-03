@@ -68,6 +68,12 @@ jobs:
         sed -i 's|STORAGE_URL|'"${{ secrets.S_STORAGE_URL }}"'|g' ./s3fs-mount.sh
         cat ./s3fs-mount.sh  # Print file contents to confirm the edits
 
+        echo "Editing persistent storage variables in dump-restore.sh..."
+        sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./dump-restore.sh
+        sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./dump-restore.sh
+        sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./dump-restore.sh
+        cat ./dump-restore.sh  # Print file contents to confirm the edits
+
         
     - name: Copy files to VM
       run: |
@@ -153,6 +159,12 @@ jobs:
           echo "Running copy-wordpress-content.sh on VM..."
           ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/copy-wordpress-content.sh || { echo "Script failed"; exit 1; }'
           echo "Script executed successfully." 
+
+    - name: Run dump-restore.sh on the VM
+      run: |
+        echo "Running dump-restore.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/dump-restore.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
 
     - name: Run certbot-ssl-install.sh on the VM
       run: |

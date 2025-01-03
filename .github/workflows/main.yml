@@ -1,11 +1,16 @@
 name: Production
 
+#on:
+ # workflow_run:
+  #  workflows:
+   #   - BlueEnv Deploy CloudFormation Stack
+    #types:
+     # - completed
+
 on:
-  workflow_run:
-    workflows:
-      - BlueEnv Deploy CloudFormation Stack
-    types:
-      - completed
+  push:
+    branches:
+      - main 
       
 jobs:
   deploy:

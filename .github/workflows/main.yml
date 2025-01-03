@@ -138,15 +138,21 @@ jobs:
          # ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/storage-setup.sh || { echo "Script failed"; exit 1; }'
           #echo "Script executed successfully."
 
-    - name: Run storage-setup.sh on the VM
+    - name: Run s3fs-mount.sh on the VM
+      run: |
+          echo "Running s3fs-mount.sh on VM..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/s3fs-mount.sh || { echo "Script failed"; exit 1; }'
+          echo "Script executed successfully." 
+    
+    - name: Run copy-wordpress-content.sh on the VM
       uses: nick-invision/retry@v2
       with:
         timeout_minutes: 10
         max_attempts: 3
         command: |
-          echo "Running s3fs-mount.sh on VM..."
-          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/s3fs-mount.sh || { echo "Script failed"; exit 1; }'
-          echo "Script executed successfully."          
+          echo "Running copy-wordpress-content.sh on VM..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/copy-wordpress-content.sh || { echo "Script failed"; exit 1; }'
+          echo "Script executed successfully." 
 
     - name: Run certbot-ssl-install.sh on the VM
       run: |

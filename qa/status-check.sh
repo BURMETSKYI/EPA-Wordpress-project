@@ -17,6 +17,17 @@ NC='\033[0m'
 # Status tracking
 declare -A STATUS
 
+print_status() {
+    echo -e ""
+    echo -e "Status Report for $DOMAIN"
+    echo -e "=================================="
+    for key in "${!STATUS[@]}"; do
+        echo -e "$(printf '%-20s : %b\n' "$key" "${STATUS[$key]}")"
+    done
+    echo -e "=================================="
+    echo -e "Last checked: $(date)"
+}
+
 check_nginx() {
     echo "Checking Nginx..."
     if systemctl is-active --quiet nginx; then

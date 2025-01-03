@@ -29,5 +29,3 @@ curl --request POST \
   "ttl": 3600
 }'
 
-# Proceed to install SSL via Certbot
-# sudo bash /root/EPA/wordpress-install.sh

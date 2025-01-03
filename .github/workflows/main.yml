@@ -64,9 +64,9 @@ jobs:
         sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./wordpress-install.sh
         cat ./wordpress-install.sh  # Print file contents to confirm the edits
 
-        echo "Editing persistent storage variables in storage-setup.sh..."
-        sed -i 's|STORAGE_URL|'"${{ secrets.S_STORAGE_URL }}"'|g' ./storage-setup.sh
-        cat ./storage-setup.sh  # Print file contents to confirm the edits
+        echo "Editing persistent storage variables in s3fs-mount.sh..."
+        sed -i 's|STORAGE_URL|'"${{ secrets.S_STORAGE_URL }}"'|g' ./s3fs-mount.sh
+        cat ./s3fs-mount.sh  # Print file contents to confirm the edits
 
         
     - name: Copy files to VM
@@ -137,6 +137,16 @@ jobs:
         #  echo "Running certbot-ssl-install.sh on VM..."
          # ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/storage-setup.sh || { echo "Script failed"; exit 1; }'
           #echo "Script executed successfully."
+
+    - name: Run storage-setup.sh on the VM
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        command: |
+          echo "Running s3fs-mount.sh on VM..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/s3fs-mount.sh || { echo "Script failed"; exit 1; }'
+          echo "Script executed successfully."          
 
     - name: Run certbot-ssl-install.sh on the VM
       run: |

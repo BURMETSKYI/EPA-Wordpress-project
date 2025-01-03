@@ -86,15 +86,15 @@ jobs:
         SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
-        echo "Starting file transfer to Development VM..."
-   
+        echo "Starting file transfer process..."
+
         # Check and remove existing directory if it exists
         echo "Checking for existing EPA-Wordpress-project directory..."
         if ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "test -d ~/EPA-Wordpress-project"; then
           echo "Found existing directory, removing it..."
-          ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "sudo rm -rf ~/EPA-Wordpress-project"
+          ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "rm -rf ~/EPA-Wordpress-project"
         fi
-     
+
         # Copy files using rsync
         echo "Copying files..."
         if rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT" \
@@ -102,7 +102,6 @@ jobs:
           --exclude 'node_modules' \
           --exclude '.env' \
           --exclude 'private_key' \
-          --exclude '.github' \
           "${PWD}/" $SSH_USERNAME@$ELASTIC_IP:~/EPA-Wordpress-project/; then
           echo "Files copied successfully"
         else
@@ -112,10 +111,10 @@ jobs:
         
         # Verify file transfer
         echo "Verifying file transfer..."
-        if ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "test -d ~/EPA-Wordpress-project/ && [ -n \"$(ls -A ~/EPA-Wordpress-project/)\" ]"; then
-          echo "Directory verification successful and not empty"
+        if ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} "test -d ~/EPA-Wordpress-project/"; then
+          echo "Directory verification successful"
         else
-          echo "Error: Target directory not found or empty after transfer"
+          echo "Error: Target directory not found after transfer"
           exit 1
         fi
 

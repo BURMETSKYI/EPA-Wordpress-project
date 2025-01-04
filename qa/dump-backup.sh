@@ -5,6 +5,8 @@ set -euo pipefail
 rds_endpoint=RDS_ENDPOINT
 db_username=DB_USERNAME
 db_password=DB_PASSWORD
+domain=DOMAIN
+s_domain=S_DOMAIN
 backup_file="/home/ubuntu/wp_backup.sql"
 
 # Create backup
@@ -21,7 +23,7 @@ sudo chown ubuntu:ubuntu "$backup_file"
 
 # Replace URLs
 echo "Replacing URLs in backup file..."
-sed -i 's|https://dev.moncorp.uk|https://test.moncorp.uk|g' "$backup_file"
+sed -i 's|$domain|$s_domain|g' "$backup_file"
 
 # Copy to S3 mount
 echo "Copying to S3 mount point..."

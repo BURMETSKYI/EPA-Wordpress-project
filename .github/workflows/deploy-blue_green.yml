@@ -35,6 +35,7 @@ jobs:
           fi
 
       - name: Deploy CloudFormation stack
+        id: deploy
         run: |
           STACK_NAME="WP-${{ env.env_name }}-$(date +'%Y%m%d-%H%M%S')"
           echo "Deploying to ${{ env.env_name }} environment with EIP ${{ env.eip_id }}"
@@ -66,29 +67,11 @@ jobs:
             --stack-name "$STACK_NAME" \
             --capabilities CAPABILITY_IAM
 
-          # Output deployment information
-          echo "Deployed to ${{ env.env_name }} environment"
-          echo "Stack Name: $STACK_NAME"
-          echo "EIP ID: ${{ env.eip_id }}"
-
-          # Store environment info for next step
           echo "deployed_env=${{ env.env_name }}" >> $GITHUB_OUTPUT
 
-      - name: Trigger appropriate workflow
+      - name: Trigger environment workflow
+        uses: peter-evans/repository-dispatch@v2
         if: success()
-        run: |
-          if [ "${{ steps.deploy.outputs.deployed_env }}" == "BLUE" ]; then
-            echo "Triggering Blue environment workflow..."
-            curl -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/blue-main.yml/dispatches" \
-              -d '{"ref":"${{ github.ref }}"}'
-          else
-            echo "Triggering Green environment workflow..."
-            curl -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/green-main.yml/dispatches" \
-              -d '{"ref":"${{ github.ref }}"}'
-          fi
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: ${{ steps.check-env.outputs.env_name == 'BLUE' && 'blue-deploy' || 'green-deploy' }}

@@ -1,0 +1,201 @@
+name: Production
+
+#on:
+ # workflow_run:
+   # workflows:
+   #   - BlueEnv Deploy CloudFormation Stack
+  #  types:
+     # - completed
+
+on:
+  push:
+    branches:
+      - main 
+      
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Debug SSH connection
+      run: |
+        echo "Testing SSH connection..."
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+        chmod 600 private_key
+    
+        echo "Checking key permissions..."
+        ls -l private_key
+    
+        echo "Testing SSH connection to ${{ secrets.ELASTIC_IP_GREEN }} as ${{ secrets.SSH_USERNAME }} on port ${{ secrets.SSH_PORT }}..."
+        ssh -vvv -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} "echo 'SSH Connection Successful'"
+
+    - name: Edit CF Variables
+      run: |
+        echo "Editing Cloudflare variables in lemp-setup.sh..."
+        sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./lemp-setup.sh
+        sed -i 's/S_ELASTIC_IP/${{ secrets.ELASTIC_IP_GREEN }}/g' ./lemp-setup.sh
+        sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./lemp-setup.sh
+        sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./lemp-setup.sh
+        cat ./lemp-setup.sh  # Print file contents to confirm the edits
+        
+        echo "Editing Cloudflare variables in certbot-ssl-install.sh..."
+        sed -i 's/S_EMAIL/${{ secrets.EMAIL }}/g' ./certbot-ssl-install.sh
+        sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./certbot-ssl-install.sh
+        cat ./certbot-ssl-install.sh  # Print file contents to confirm the edits
+
+        # echo "Editing SERVERNAME variable in ngnix.conf..."
+        # sed -i 's/SERVERNAME/${{ secrets.DOMAIN }}/g' ./ngnix.conf
+        # cat ./ngnix.conf  # Print file contents to confirm the edits
+
+        echo "Editing Cloudflare variables in cloudflare-dns.sh..."
+        sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./cloudflare-dns.sh
+        sed -i 's/S_ELASTIC_IP/${{ secrets.ELASTIC_IP_GREEN }}/g' ./cloudflare-dns.sh
+        sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./cloudflare-dns.sh
+        sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./cloudflare-dns.sh
+        cat ./cloudflare-dns.sh  # Print file contents to confirm the edits
+
+        echo "Editing MariaDB variables in wordpress-install.sh..."
+        sed -i 's/DB_PASSWORD_S/${{ secrets.DB_PASSWORD }}/g' ./wordpress-install.sh
+        sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./wordpress-install.sh
+        sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./wordpress-install.sh
+        cat ./wordpress-install.sh  # Print file contents to confirm the edits
+
+        echo "Editing persistent storage variables in s3fs-mount.sh..."
+        sed -i 's|STORAGE_URL|'"${{ secrets.S_STORAGE_URL }}"'|g' ./s3fs-mount.sh
+        cat ./s3fs-mount.sh  # Print file contents to confirm the edits
+
+        echo "Editing variables variables in dump-restore.sh..."
+        sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./dump-restore.sh
+        sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./dump-restore.sh
+        sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./dump-restore.sh
+        cat ./dump-restore.sh  # Print file contents to confirm the edits
+
+        echo "Editing variables variables in status-check.sh..."
+        sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./qa/status-check.sh
+        sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./qa/status-check.sh
+        sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./qa/status-check.sh
+        sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./qa/status-check.sh
+        cat ./qa/status-check.sh  # Print file contents to confirm the edits
+
+        echo "Editing variables variables in test-dump-restore.sh..."
+        sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./qa/test-dump-restore.sh
+        sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./qa/test-dump-restore.sh
+        sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./qa/test-dump-restore.sh
+        cat ./qa/test-dump-restore.sh  # Print file contents to confirm the edits
+        
+     
+    - name: Copy files to VM
+      run: |
+        echo "Starting file transfer process..."
+
+        # Check and remove existing directory if it exists
+        echo "Checking for existing EPA-Wordpress-project directory..."
+        if ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} "test -d ~/EPA-Wordpress-project"; then
+          echo "Found existing directory, removing it..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} "rm -rf ~/EPA-Wordpress-project"
+        fi
+
+        # Copy files using rsync
+        echo "Copying files..."
+        if rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }}" \
+          --exclude '.git' \
+          --exclude 'node_modules' \
+          --exclude '.env' \
+          --exclude 'private_key' \
+          "${PWD}/" ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }}:~/EPA-Wordpress-project/; then
+          echo "Files copied successfully"
+        else
+          echo "Error: File transfer failed"
+          exit 1
+        fi
+        
+        # Verify file transfer
+        echo "Verifying file transfer..."
+        if ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} "test -d ~/EPA-Wordpress-project/"; then
+          echo "Directory verification successful"
+        else
+          echo "Error: Target directory not found after transfer"
+          exit 1
+        fi
+
+        
+    - name: Run git-setup.sh on the VM
+      run: |
+        echo "Running git-setup.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/git-setup.sh || { echo "Script failed"; exit 1; }' 
+        echo "Script executed successfully."
+
+    - name: Run lemp-setup.sh on the VM
+      run: |
+        echo "Running lemp-setup.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/lemp-setup.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run cloudflare-dns.sh on the VM
+      run: |
+        echo "Running cloudflare-dns.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+    
+    - name: Run wordpress-install.sh on the VM
+      run: |
+        echo "Running wordpress-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/wordpress-install.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+        
+   # - name: Run storage-setup.sh on the VM
+   #   uses: nick-invision/retry@v2
+    #  with:
+     #   timeout_minutes: 10
+      #  max_attempts: 3
+       # command: |
+        #  echo "Running certbot-ssl-install.sh on VM..."
+         # ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/storage-setup.sh || { echo "Script failed"; exit 1; }'
+          #echo "Script executed successfully."
+
+    - name: Run s3fs-mount.sh on the VM
+      run: |
+          echo "Running s3fs-mount.sh on VM..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/s3fs-mount.sh || { echo "Script failed"; exit 1; }'
+          echo "Script executed successfully." 
+    
+    - name: Run copy-wordpress-content.sh on the VM
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        command: |
+          echo "Running copy-wordpress-content.sh on VM..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/copy-wordpress-content.sh || { echo "Script failed"; exit 1; }'
+          echo "Script executed successfully." 
+
+    - name: Run dump-restore.sh on the VM
+      run: |
+        echo "Running dump-restore.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/dump-restore.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run certbot-ssl-install.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run test-dump-restore.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/test-dump-restore.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run status-check.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/status-check.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+        
+        

@@ -5,7 +5,7 @@ set -euo pipefail
 rds_endpoint=RDS_ENDPOINT  # Replace with RDS endpoint
 db_username=DB_USERNAME   # Replace with RDS admin username
 db_password=DB_PASSWORD   # Replace with RDS admin password
-backup_file="/home/ubuntu/s3-epa/wp_backup.sql"  # Note: changed from s3_epa to s3-epa
+backup_file="/home/ubuntu/s3-epa/dev/wp_backup.sql"  # Note: changed from s3_epa to s3-epa
 
 # Function to check exit status
 check_exit_status() {

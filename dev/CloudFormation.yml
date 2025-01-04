@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: '2010-09-09' 
 Description: CloudFormation template to create an EC2 t2.micro instance running Ubuntu 24.04 LTS in eu-west-2a and associate an existing Elastic IP
 
 Resources:

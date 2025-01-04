@@ -27,10 +27,12 @@ sudo cp "$backup_file" /home/ubuntu/s3-epa/dev/
 
 # Replace URLs
 echo "Replacing URLs in backup file..."
-sed -i 's|$domain|$s_domain|g' "$backup_file"
+sed -i 's|https://$domain|https://$s_domain|g' "$backup_file"
 
 # Copy to S3 mount for prod
 echo "Copying to S3 mount point..."
 sudo cp "$backup_file" /home/ubuntu/s3-epa/
+
+sudo rm $backup_file
 
 echo "Backup process completed successfully!"

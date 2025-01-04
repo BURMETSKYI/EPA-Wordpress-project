@@ -8,8 +8,9 @@ name: Green Environment Setup
      # - completed
 
 on:
-  repository_dispatch:
-    types: [green-deploy]
+  workflow_call:  # Add this to make the workflow reusable
+  workflow_dispatch:  # Keep this for manual triggers
+
       
 jobs:
   deploy:

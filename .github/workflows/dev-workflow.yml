@@ -71,7 +71,7 @@ jobs:
         cat ./dev/cloudflare-dns.sh  # Print file contents to confirm the edits
 
         echo "Editing MariaDB variables in wordpress-install.sh..."
-        sed -i "s/DB_PASSWORD/$DB_PASSWORD/g" ./dev/wordpress-install.sh
+        sed -i "s/DB_PASSWORD_S/$DB_PASSWORD/g" ./dev/wordpress-install.sh
         sed -i "s/DB_USERNAME/$DB_USERNAME/g" ./dev/wordpress-install.sh
         sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./dev/wordpress-install.sh
         cat ./dev/wordpress-install.sh  # Print file contents to confirm the edits

@@ -61,11 +61,15 @@ jobs:
             --capabilities CAPABILITY_IAM
           echo "deployed_env=${{ env.env_name }}" >> $GITHUB_OUTPUT
 
-  trigger_blue:
+trigger_blue:
     needs: deploy
     if: success() && needs.deploy.outputs.deployed_env == 'BLUE'
     uses: ./.github/workflows/blue-main.yml
 
+trigger_green:
+    needs: deploy
+    if: success() && needs.deploy.outputs.deployed_env == 'GREEN'
+    uses: ./.github/workflows/green-main.yml
   trigger_green:
     needs: deploy
     if: success() && needs.deploy.outputs.deployed_env == 'GREEN'

@@ -130,7 +130,7 @@ jobs:
         
         # Verify file transfer
         echo "Verifying file transfer..."
-        if ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} "test -d ~/EPA-Wordpress-project/"; then
+        if ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "test -d ~/EPA-Wordpress-project/"; then
           echo "Directory verification successful"
         else
           echo "Error: Target directory not found after transfer"

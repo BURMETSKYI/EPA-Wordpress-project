@@ -2,7 +2,7 @@
 # Constants
 rds_endpoint=RDS_ENDPOINT  # Replace with RDS endpoint
 db_username=DB_USERNAME   # Replace with RDS admin username
-db_password=DB_PASSWORD   # Replace with RDS admin password
+db_password=DB_PASSWORD_S   # Replace with RDS admin password
 
 # Functions for error handling
 function check_exit_status {

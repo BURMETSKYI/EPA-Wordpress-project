@@ -1,9 +1,15 @@
 name: Backup
 
 on:
-  push:
-    branches:
-      - main 
+  workflow_call:
+    secrets:
+      SSH_PORT:
+        required: true
+      SSH_USERNAME:
+        required: true
+      ELASTIC_IP_GREEN:
+        required: true 
+  workflow_dispatch: 
   
 jobs:
   deploy_to_dev:

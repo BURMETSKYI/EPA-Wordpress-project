@@ -1,4 +1,4 @@
-name: Blue/Green Env Deploy CloudFormation Stack
+name: Blue/Green Env Deploy CloudFormation Stack 
 on:
   push:
     branches:
@@ -64,9 +64,9 @@ jobs:
   trigger_blue:
     needs: deploy
     if: success() && needs.deploy.outputs.deployed_env == 'BLUE'
-    uses: ./.github/workflows/blue-main.yml@main
+    uses: ./.github/workflows/blue-main.yml
 
   trigger_green:
     needs: deploy
     if: success() && needs.deploy.outputs.deployed_env == 'GREEN'
-    uses: ./.github/workflows/green-main.yml@main
+    uses: ./.github/workflows/green-main.yml

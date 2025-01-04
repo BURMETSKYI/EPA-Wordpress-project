@@ -183,13 +183,13 @@ ERRORS=$(echo "${STATUS[@]}" | grep -o "$ERROR_ICON" | wc -l)
 WARNINGS=$(echo "${STATUS[@]}" | grep -o "$WARNING_ICON" | wc -l)
 
 # Exit with appropriate code
-if [ $ERRORS -gt 0 ]; then
-   echo "Found $ERRORS critical issues and $WARNINGS warnings!"
-   exit 1
-elif [ $WARNINGS -gt 0 ]; then
-   echo "Found $WARNINGS warnings!"
-   exit 0
+if [ "$ERRORS" -gt 0 ]; then
+    echo "Found $ERRORS critical issues and $WARNINGS warnings!"
+    exit 1
+elif [ "$WARNINGS" -gt 0 ]; then
+    echo "Found $WARNINGS warnings!"
+    exit 0
 else
-   echo "All systems operational!"
-   exit 0
+    echo "All systems operational!"
+    exit 0
 fi

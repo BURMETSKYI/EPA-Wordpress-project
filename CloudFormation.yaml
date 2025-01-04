@@ -14,7 +14,7 @@ Resources:
       IamInstanceProfile: s3fs-role
       Tags:
         - Key: Name
-          Value: WP-Blue
+          Value: WP-Prod
 
   EIPAssociation:
     Type: AWS::EC2::EIPAssociation

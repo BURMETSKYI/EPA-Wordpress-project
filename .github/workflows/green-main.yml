@@ -9,7 +9,13 @@ name: Green Environment Setup
 
 on:
   workflow_call:  # Add this to make the workflow reusable
-    secrets: inherit
+    secrets:
+      SSH_PORT:
+        required: true
+      SSH_USERNAME:
+        required: true
+      ELASTIC_IP_GREEN:
+        required: true
   workflow_dispatch:  # Keep this for manual triggers
 
       

@@ -197,23 +197,48 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/dump-restore.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
 
-#    - name: Run certbot-ssl-install.sh on the VM
-#      run: |
-#        echo "Running certbot-ssl-install.sh on VM..."
-#        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
-#        echo "Script executed successfully."
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+      
 
-#    - name: Run test-dump-restore.sh on the VM
-#      run: |
-#        echo "Running certbot-ssl-install.sh on VM..."
-#        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/test-dump-restore.sh || { echo "Script failed"; exit 1; }'
-#        echo "Script executed successfully."
+    - name: Get associated instance ID
+      id: get_instance_id
+      run: |
+        INSTANCE_ID=$(aws ec2 describe-addresses \
+            --allocation-ids ${{ github.event.inputs.eip_id }} \
+            --query 'Addresses[0].InstanceId' \
+            --output text)
+          echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV
 
-#    - name: Run status-check.sh on the VM
-#      run: |
-#        echo "Running certbot-ssl-install.sh on VM..."
-#        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/status-check.sh || { echo "Script failed"; exit 1; }'
-#        echo "Script executed successfully."
+    - name: Terminate EC2 instance
+      if: env.INSTANCE_ID != 'None'
+      run: |
+        echo "Terminating EC2 instance: $INSTANCE_ID"
+        aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
+        aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
+        echo "EC2 instance $INSTANCE_ID terminated successfully."
+
+    - name: Run certbot-ssl-install.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run test-dump-restore.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/test-dump-restore.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run status-check.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/status-check.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
 
         
         

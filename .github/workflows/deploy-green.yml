@@ -1,4 +1,4 @@
-name: GreenEnv Deploy CloudFormation Stack
+name: Dev Env 
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
       # Deploy CloudFormation stack with dynamic stack name
       - name: Deploy CloudFormation stack
         run: |
-          STACK_NAME="WP-GREEN-$(date +'%Y%m%d-%H%M%S')"
+          STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
 
           # Debugging: Print out the value of STACK_NAME to verify it's correct
           echo "STACK_NAME is: $STACK_NAME"

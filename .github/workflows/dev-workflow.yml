@@ -1,16 +1,15 @@
 name: Development Env
 
-#on:
- # workflow_run:
-#    workflows:
-#      - GreenEnv Deploy CloudFormation Stack
- #   types:
-#      - completed
-
 on:
-  push:
-    branches:
-      - main 
+  workflow_run:
+    workflows:
+      - GreenEnv Deploy CloudFormation Stack
+    types:
+      - completed
+
+#on:
+ # workflow_call:
+  #workflow_dispatch:  # Keep this for manual triggers
   
 jobs:
   deploy_to_dev:

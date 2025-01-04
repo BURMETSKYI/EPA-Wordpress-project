@@ -76,4 +76,6 @@ jobs:
     if: success() && needs.deploy.outputs.deployed_env == 'GREEN'
     uses: ./.github/workflows/green-main.yml
     with:
-      environment: GREEN 
+      SSH_PORT: ${{ secrets.SSH_PORT }}
+      SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+      ELASTIC_IP_GREEN: ${{ secrets.ELASTIC_IP_GREEN }}

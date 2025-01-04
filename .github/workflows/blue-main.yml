@@ -8,8 +8,9 @@ name: Blue Environment Setup
      # - completed
 
 on:
-  repository_dispatch:
-    types: [blue-deploy]
+  workflow_call:  # Add this to make the workflow reusable
+  workflow_dispatch:  # Keep this for manual triggers
+
       
 jobs:
   deploy:

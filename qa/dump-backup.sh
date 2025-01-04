@@ -7,7 +7,7 @@ db_username=DB_USERNAME
 db_password=DB_PASSWORD
 domain=DOMAIN
 s_domain=S_DOMAIN
-backup_file="/home/ubuntu/"
+backup_file="/home/ubuntu/wp_backup.sql"
 
 # Create backup
 echo "Creating database backup..."
@@ -23,15 +23,15 @@ sudo chown ubuntu:ubuntu "$backup_file"
 
 # Copy to S3 mount to dev
 echo "Copying to S3 mount point..."
-sudo cp "$backup_file/wp_backup.sql" /home/ubuntu/s3-epa/dev/wp_backup_$domain.sql
+sudo cp "$backup_file" /home/ubuntu/s3-epa/dev/
 
 # Replace URLs
 echo "Replacing URLs in backup file..."
-sudo sed -i 's|https://$domain|https://$s_domain|g' "$backup_file/wp_backup.sql"
+sudo sed -i 's|https://$domain|https://$s_domain|g' "$backup_file"
 
 # Copy to S3 mount for prod
 echo "Copying to S3 mount point..."
-sudo cp "$backup_file/wp_backup.sql" /home/ubuntu/s3-epa/wp_backup_$s_domain.sql
+sudo cp "$backup_file/wp_backup.sql" /home/ubuntu/s3-epa/
 
 sudo rm $backup_file
 

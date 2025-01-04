@@ -7,18 +7,19 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ steps.check-env.outputs.env_name }}
     outputs:
       deployed_env: ${{ env.env_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
+
       - name: Determine deployment environment
         id: check-env
         run: |
@@ -28,38 +29,15 @@ jobs:
             echo "Blue environment is active, switching to Green"
             echo "eip_id=eipalloc-086b8564c5978e818" >> $GITHUB_ENV
             echo "env_name=GREEN" >> $GITHUB_ENV
+            echo "environment=GREEN" >> $GITHUB_OUTPUT
           else
             echo "Using Blue environment"
             echo "eip_id=eipalloc-0c8847552fb41b281" >> $GITHUB_ENV
             echo "env_name=BLUE" >> $GITHUB_ENV
+            echo "environment=BLUE" >> $GITHUB_OUTPUT
           fi
-      - name: Deploy CloudFormation stack
-        id: deploy
-        run: |
-          STACK_NAME="WP-${{ env.env_name }}-$(date +'%Y%m%d-%H%M%S')"
-          echo "Deploying to ${{ env.env_name }} environment with EIP ${{ env.eip_id }}"
-          
-          sed "s/eipalloc-0c8847552fb41b281/${{ env.eip_id }}/g" CloudFormation.yaml > deployment.yaml
-          
-          INSTANCE_ID=$(aws ec2 describe-addresses --allocation-ids ${{ env.eip_id }} --query 'Addresses[0].InstanceId' --output text)
-          if [ "$INSTANCE_ID" != "None" ]; then
-            echo "Terminating instance: $INSTANCE_ID"
-            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
-            echo "Waiting for instance termination..."
-            aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
-          fi
-          
-          ASSOCIATION_ID=$(aws ec2 describe-addresses --allocation-ids ${{ env.eip_id }} --query 'Addresses[0].AssociationId' --output text)
-          if [ "$ASSOCIATION_ID" != "None" ]; then
-            echo "Disassociating Elastic IP..."
-            aws ec2 disassociate-address --association-id "$ASSOCIATION_ID"
-          fi
-          
-          aws cloudformation deploy \
-            --template-file deployment.yaml \
-            --stack-name "$STACK_NAME" \
-            --capabilities CAPABILITY_IAM
-          echo "deployed_env=${{ env.env_name }}" >> $GITHUB_OUTPUT
+
+      # Rest of your steps...
 
   trigger_blue:
     needs: deploy

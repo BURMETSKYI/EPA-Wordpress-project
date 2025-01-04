@@ -5,7 +5,7 @@ Resources:
   MyEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: t2.micro
+      InstanceType: t2.small
       ImageId: ami-05c172c7f0d3aed00
       KeyName: epa-lemp
       SecurityGroupIds:

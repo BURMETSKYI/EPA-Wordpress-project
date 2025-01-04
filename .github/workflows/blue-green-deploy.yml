@@ -13,9 +13,6 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          SSH_PORT: ${{ secrets.SSH_PORT }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          ELASTIC_IP_GREEN: ${{ secrets.ELASTIC_IP_GREEN }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
@@ -77,3 +74,32 @@ jobs:
     if: success() && needs.deploy.outputs.deployed_env == 'GREEN'
     uses: ./.github/workflows/green-main.yml
     secrets: inherit
+
+  terminate_opposite_instance:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Terminate opposite EC2 instance
+        run: |
+          if [[ "${{ needs.deploy.outputs.deployed_env }}" == "BLUE" ]]; then
+            echo "Deploying to Blue, terminating Green EC2 instance"
+            GREEN_INSTANCE=$(aws ec2 describe-addresses --allocation-ids eipalloc-086b8564c5978e818 --query 'Addresses[0].InstanceId' --output text)
+            if [ "$GREEN_INSTANCE" != "None" ]; then
+              echo "Terminating Green instance: $GREEN_INSTANCE"
+              aws ec2 terminate-instances --instance-ids "$GREEN_INSTANCE"
+              echo "Waiting for Green instance termination..."
+              aws ec2 wait instance-terminated --instance-ids "$GREEN_INSTANCE"
+            fi
+          elif [[ "${{ needs.deploy.outputs.deployed_env }}" == "GREEN" ]]; then
+            echo "Deploying to Green, terminating Blue EC2 instance"
+            BLUE_INSTANCE=$(aws ec2 describe-addresses --allocation-ids eipalloc-0c8847552fb41b281 --query 'Addresses[0].InstanceId' --output text)
+            if [ "$BLUE_INSTANCE" != "None" ]; then
+              echo "Terminating Blue instance: $BLUE_INSTANCE"
+              aws ec2 terminate-instances --instance-ids "$BLUE_INSTANCE"
+              echo "Waiting for Blue instance termination..."
+              aws ec2 wait instance-terminated --instance-ids "$BLUE_INSTANCE"
+            fi
+          else
+            echo "Unknown environment, cannot terminate instance"
+          fi

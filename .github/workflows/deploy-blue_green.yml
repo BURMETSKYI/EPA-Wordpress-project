@@ -37,7 +37,33 @@ jobs:
             echo "environment=BLUE" >> $GITHUB_OUTPUT
           fi
 
-      # Rest of your steps...
+      - name: Deploy CloudFormation stack
+        id: deploy
+        run: |
+          STACK_NAME="WP-${{ env.env_name }}-$(date +'%Y%m%d-%H%M%S')"
+          echo "Deploying to ${{ env.env_name }} environment with EIP ${{ env.eip_id }}"
+
+          sed "s/eipalloc-0c8847552fb41b281/${{ env.eip_id }}/g" CloudFormation.yaml > deployment.yaml
+
+          INSTANCE_ID=$(aws ec2 describe-addresses --allocation-ids ${{ env.eip_id }} --query 'Addresses[0].InstanceId' --output text)
+          if [ "$INSTANCE_ID" != "None" ]; then
+            echo "Terminating instance: $INSTANCE_ID"
+            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
+            echo "Waiting for instance termination..."
+            aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
+          fi
+
+          ASSOCIATION_ID=$(aws ec2 describe-addresses --allocation-ids ${{ env.eip_id }} --query 'Addresses[0].AssociationId' --output text)
+          if [ "$ASSOCIATION_ID" != "None" ]; then
+            echo "Disassociating Elastic IP..."
+            aws ec2 disassociate-address --association-id "$ASSOCIATION_ID"
+          fi
+
+          aws cloudformation deploy \
+            --template-file deployment.yaml \
+            --stack-name "$STACK_NAME" \
+            --capabilities CAPABILITY_IAM
+          echo "deployed_env=${{ env.env_name }}" >> $GITHUB_OUTPUT
 
   trigger_blue:
     needs: deploy

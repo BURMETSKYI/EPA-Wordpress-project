@@ -7,6 +7,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ steps.check-env.outputs.env_name }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -69,9 +70,7 @@ jobs:
 
           echo "deployed_env=${{ env.env_name }}" >> $GITHUB_OUTPUT
 
-      - name: Trigger environment workflow
-        uses: peter-evans/repository-dispatch@v2
-        if: success()
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: ${{ steps.check-env.outputs.env_name == 'BLUE' && 'blue-deploy' || 'green-deploy' }}
+  trigger_environment:
+    needs: deploy
+    if: success()
+    uses: ./.github/workflows/${{ needs.deploy.outputs.env_name == 'BLUE' && 'blue-main.yml' || 'green-main.yml' }}

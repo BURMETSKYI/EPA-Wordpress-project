@@ -1,4 +1,4 @@
-name: Green Environment Setup
+name: Green Environment Setup 
 
 on:
   workflow_run:

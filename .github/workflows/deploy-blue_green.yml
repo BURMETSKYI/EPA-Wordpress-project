@@ -67,9 +67,13 @@ jobs:
   trigger_blue:
     needs: deploy
     if: success() && needs.deploy.outputs.deployed_env == 'BLUE'
-    uses: ./.github/workflows/trigger-blue-main.yml
+    uses: ./.github/workflows/blue-main.yml
+    with:
+      environment: 'GREEN' 
 
   trigger_green:
     needs: deploy
     if: success() && needs.deploy.outputs.deployed_env == 'GREEN'
-    uses: ./.github/workflows/trigger-green-main.yml
+    uses: ./.github/workflows/green-main.yml
+    with:
+      environment: 'GREEN' 

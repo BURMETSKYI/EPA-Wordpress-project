@@ -238,7 +238,7 @@ jobs:
         SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
-        echo "Running certbot-ssl-install.sh on VM..."
+        echo "Running test-dump-restore.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/test-dump-restore.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
 
@@ -248,6 +248,6 @@ jobs:
         SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
-        echo "Running certbot-ssl-install.sh on VM..."
+        echo "Running status-check.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/status-check.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."

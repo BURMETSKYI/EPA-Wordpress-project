@@ -9,10 +9,10 @@ domain=S_DOMAIN
 S3_MOUNT="/home/ubuntu/s3-epa"
 
 # Colors
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+GREEN="\e[32m"
+RED="\e[31m"
+YELLOW="\e[33m"
+NC="\e[0m"
 
 # Status tracking
 declare -A STATUS

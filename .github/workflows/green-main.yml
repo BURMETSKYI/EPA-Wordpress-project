@@ -21,6 +21,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Debug secrets
+      run: |
+        echo "SSH_PORT: ${{ secrets.SSH_PORT }}"
+        echo "SSH_USERNAME: ${{ secrets.SSH_USERNAME }}"
+        echo "ELASTIC_IP_GREEN: ${{ secrets.ELASTIC_IP_GREEN }}"
+      env:
+        SSH_PORT: ${{ secrets.SSH_PORT }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+        ELASTIC_IP_GREEN: ${{ secrets.ELASTIC_IP_GREEN }}
+
+    
     - name: Debug SSH connection
       run: |
         echo "Testing SSH connection..."

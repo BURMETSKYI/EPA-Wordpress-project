@@ -101,11 +101,11 @@ jobs:
         cat ./qa/test-dump-restore.sh  # Print file contents to confirm the edits
 
         echo "Editing variables variables in dump-backup.sh..."
-        sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./qa/test-dump-restore.sh
-        sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./qa/test-dump-restore.sh
-        sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./qa/test-dump-restore.sh
+        sed -i 's/DB_PASSWORD/${{ secrets.DB_PASSWORD }}/g' ./qa/dump-backup.sh
+        sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./qa/dump-backup.sh
+        sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./qa/dump-backup.sh
         sed -i "s/DOMAIN/$DOMAIN/g" ./qa/dump-backup.sh
-        sed -i "s/S_DOMAIN/$DOMAIN/g" ./qa/dump-backup.sh
+        sed -i "s/S_DOMAIN/$S_DOMAIN/g" ./qa/dump-backup.sh
         cat ./qa/dump-backup.sh  # Print file contents to confirm the edits
 
         

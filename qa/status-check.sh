@@ -179,16 +179,16 @@ check_memory
 print_status
 
 # Count issues
-ERRORS=$(echo "${STATUS[@]}" | grep -o "$ERROR_ICON" | wc -l)
-WARNINGS=$(echo "${STATUS[@]}" | grep -o "$WARNING_ICON" | wc -l)
+ERRORS=$(echo "${STATUS[@]}" | grep -q "$FAIL_LABEL" && echo 1 || echo 0)
+WARNINGS=$(echo "${STATUS[@]}" | grep -q "$WARN_LABEL" && echo 1 || echo 0)
 
-# Exit with appropriate code
+# Exit with appropriate code and message
 if [ "$ERRORS" -gt 0 ]; then
-    echo "Found $ERRORS critical issues and $WARNINGS warnings!"
+    echo "Critical issues found!"
     exit 1
 elif [ "$WARNINGS" -gt 0 ]; then
-    echo "Found $WARNINGS warnings!"
-    exit 0
+    echo "Systems operational with warnings"
+    exit 0  # Warning should not cause failure
 else
     echo "All systems operational!"
     exit 0

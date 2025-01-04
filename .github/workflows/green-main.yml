@@ -9,6 +9,7 @@ name: Green Environment Setup
 
 on:
   workflow_call:  # Add this to make the workflow reusable
+    secrets: inherit
   workflow_dispatch:  # Keep this for manual triggers
 
       
@@ -16,8 +17,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    environment: GREEN
-    
+        
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

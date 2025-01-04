@@ -21,6 +21,10 @@ echo "Setting file permissions..."
 sudo chmod 644 "$backup_file"
 sudo chown ubuntu:ubuntu "$backup_file"
 
+# Copy to S3 mount
+echo "Copying to S3 mount point..."
+sudo cp "$backup_file" /home/ubuntu/s3-epa/dev/
+
 # Replace URLs
 echo "Replacing URLs in backup file..."
 sed -i 's|$domain|$s_domain|g' "$backup_file"

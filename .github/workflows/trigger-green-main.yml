@@ -1,12 +1,5 @@
 name: Green Trigger
 
-#on:
- # workflow_run:
-   # workflows:
-   #   - BlueEnv Deploy CloudFormation Stack
-  #  types:
-     # - completed
-
 on:
   workflow_call:  # Add this to make the workflow reusable
   workflow_dispatch:  # Keep this for manual triggers

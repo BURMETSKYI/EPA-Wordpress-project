@@ -16,6 +16,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    environment: GREEN
     
     steps:
     - name: Checkout code

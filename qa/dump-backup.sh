@@ -27,7 +27,7 @@ sudo cp "$backup_file/wp_backup.sql" /home/ubuntu/s3-epa/dev/wp_backup_$domain.s
 
 # Replace URLs
 echo "Replacing URLs in backup file..."
-sed -i 's|https://$domain|https://$s_domain|g' "$backup_file/wp_backup.sql"
+sudo sed -i 's|https://$domain|https://$s_domain|g' "$backup_file/wp_backup.sql"
 
 # Copy to S3 mount for prod
 echo "Copying to S3 mount point..."

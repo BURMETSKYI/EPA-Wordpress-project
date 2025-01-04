@@ -8,7 +8,8 @@ name: Green Environment Setup
      # - completed
 
 on:
-  workflow_dispatch: 
+  repository_dispatch:
+    types: [green-deploy]
       
 jobs:
   deploy:

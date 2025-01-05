@@ -190,7 +190,7 @@ jobs:
       id: get_instance_id
       run: |
         INSTANCE_ID=$(aws ec2 describe-addresses \
-            --allocation-ids ${{ github.event.inputs.eip_id }} \
+            --allocation-ids eipalloc-086b8564c5978e818 \
             --query 'Addresses[0].InstanceId' \
             --output text)
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV

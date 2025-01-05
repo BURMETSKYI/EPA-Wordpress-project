@@ -18,7 +18,7 @@ mysqldump -h "$rds_endpoint" \
 
 # Set permissions
 echo "Setting file permissions..."
-sudo chmod 644 "$backup_file"
+sudo chmod 777 "$backup_file"
 sudo chown ubuntu:ubuntu "$backup_file"
 
 # Copy to S3 mount to dev
@@ -27,12 +27,13 @@ sudo cp "$backup_file" /home/ubuntu/s3-epa/dev/
 
 # Replace URLs
 echo "Replacing URLs in backup file..."
-sudo sed -i 's|https://$domain|https://$s_domain|g' "$backup_file"
+sudo sed -i 's|https://dev.moncorp.uk|https://moncorp.uk|g' /home/ubuntu/wp_backup.sql
+
+sudo rm /home/ubuntu/s3-epa/wp_backup.sql
 
 # Copy to S3 mount for prod
 echo "Copying to S3 mount point..."
 sudo cp "$backup_file" /home/ubuntu/s3-epa/
 
 sudo rm $backup_file
-
-echo "Backup process completed successfully!"
+                        

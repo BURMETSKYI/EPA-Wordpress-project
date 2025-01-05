@@ -22,7 +22,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 120        
         
     steps:
     - name: Checkout code
@@ -164,16 +164,6 @@ jobs:
         echo "Running wordpress-install.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/wordpress-install.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
-        
-   # - name: Run storage-setup.sh on the VM
-   #   uses: nick-invision/retry@v2
-    #  with:
-     #   timeout_minutes: 10
-      #  max_attempts: 3
-       # command: |
-        #  echo "Running certbot-ssl-install.sh on VM..."
-         # ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/storage-setup.sh || { echo "Script failed"; exit 1; }'
-          #echo "Script executed successfully."
 
     - name: Run s3fs-mount.sh on the VM
       run: |
@@ -189,7 +179,7 @@ jobs:
         command: |
           echo "Running copy-wordpress-content.sh on VM..."
           ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/copy-wordpress-content.sh || { echo "Script failed"; exit 1; }'
-          echo "Script executed successfully." 
+          echo "Script executed successfully."
 
     - name: Run dump-restore.sh on the VM
       run: |
@@ -209,7 +199,7 @@ jobs:
       id: get_instance_id
       run: |
         INSTANCE_ID=$(aws ec2 describe-addresses \
-            --allocation-ids ${{ github.event.inputs.eip_id }} \
+            --allocation-ids eipalloc-0c8847552fb41b281 \
             --query 'Addresses[0].InstanceId' \
             --output text)
           echo "INSTANCE_ID=$INSTANCE_ID" >> $GITHUB_ENV

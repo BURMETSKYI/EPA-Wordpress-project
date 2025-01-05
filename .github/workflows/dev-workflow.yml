@@ -3,7 +3,7 @@ name: Development Env
 on:
   workflow_run:
     workflows:
-      - GreenEnv Deploy CloudFormation Stack
+      - Dev Env
     types:
       - completed
 

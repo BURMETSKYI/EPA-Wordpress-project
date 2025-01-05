@@ -14,7 +14,7 @@ echo "Creating database backup..."
 mysqldump -h "$rds_endpoint" \
 -u "$db_username" \
 -p"$db_password" \
---databases admin > "$backup_file/wp_backup.sql"
+--databases admin > "$backup_file"
 
 # Set permissions
 echo "Setting file permissions..."
@@ -31,7 +31,7 @@ sudo sed -i 's|https://$domain|https://$s_domain|g' "$backup_file"
 
 # Copy to S3 mount for prod
 echo "Copying to S3 mount point..."
-sudo cp "$backup_file/wp_backup.sql" /home/ubuntu/s3-epa/
+sudo cp "$backup_file" /home/ubuntu/s3-epa/
 
 sudo rm $backup_file
 

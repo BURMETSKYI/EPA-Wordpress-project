@@ -5,6 +5,7 @@ on:
 jobs:
  terminate:
    runs-on: ubuntu-latest
+   environment: Development
    steps:
      - name: Configure AWS credentials
        uses: aws-actions/configure-aws-credentials@v1
@@ -48,7 +49,7 @@ jobs:
 
      - name: Terminate RDS instance
        env:
-         RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT_G }}
+         RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
        run: |
          echo "Terminating RDS instance ${RDS_ENDPOINT}..."
          

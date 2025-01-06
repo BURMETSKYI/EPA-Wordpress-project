@@ -1,4 +1,4 @@
-name: Terminate Resources
+name: Terminate Dev Env
 on:
  workflow_dispatch:
 

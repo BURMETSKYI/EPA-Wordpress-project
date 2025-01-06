@@ -70,6 +70,8 @@ jobs:
          value: ${{ env.RDS_ENDPOINT }}
          pa_token: ${{ secrets.GH_PAT }}
          repository: ${{ github.repository }}
+         location: 'environment'
+         org_visibility: 'private' 
 
      - name: Verify deployment
        if: success()

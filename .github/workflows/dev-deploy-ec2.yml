@@ -1,4 +1,4 @@
-name: Deloy DevEnv EC2
+name: Deploy DevEnv EC2
 
 on:
   workflow_call:

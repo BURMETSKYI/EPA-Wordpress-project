@@ -7,10 +7,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      STACK_NAME: ""  # Will be set in first step
+      STACK_NAME: ""
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -20,86 +19,62 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Create RDS Snapshot
+        id: create-snapshot
         run: |
           SNAPSHOT_NAME="wp-snapshot-$(date +'%Y%m%d-%H%M%S')"
-          echo "Creating RDS snapshot: $SNAPSHOT_NAME"
-          
+          echo "Creating snapshot: $SNAPSHOT_NAME"
           aws rds create-db-snapshot \
             --db-instance-identifier database-blue \
-            --db-snapshot-identifier "$SNAPSHOT_NAME"
-            
-          echo "Waiting for snapshot to complete..."
+            --db-snapshot-identifier "$SNAPSHOT_NAME" \
+            || { echo "Snapshot creation failed"; exit 1; }
+          
+          echo "Waiting for snapshot..."
           aws rds wait db-snapshot-available \
-            --db-snapshot-identifier "$SNAPSHOT_NAME"
-            
+            --db-snapshot-identifier "$SNAPSHOT_NAME" \
+            || { echo "Snapshot wait failed"; exit 1; }
+          
           echo "SNAPSHOT_NAME=$SNAPSHOT_NAME" >> $GITHUB_ENV
+          echo "✓ Snapshot created: $SNAPSHOT_NAME"
 
       - name: Deploy CloudFormation stack
         id: deploy-stack
         run: |
           STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
           echo "STACK_NAME=$STACK_NAME" >> $GITHUB_ENV
-          echo "Stack name: $STACK_NAME"
-          
-          if [ -z "$STACK_NAME" ]; then
-            echo "Error: STACK_NAME is empty!"
-            exit 1
-          fi
 
-          if [ ! -f ./dev/CloudFormation.yml ]; then
-            echo "Error: CloudFormation.yml not found!"
-            exit 1
-          fi
-
-          # Handle EC2 instance
+          # Handle existing instance
           INSTANCE_ID=$(aws ec2 describe-addresses \
             --allocation-ids eipalloc-092e331c98b8b9bfa \
             --query 'Addresses[0].InstanceId' \
             --output text)
-          
+
           if [ "$INSTANCE_ID" != "None" ]; then
             echo "Terminating instance: $INSTANCE_ID"
-            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID" || {
-              echo "Failed to terminate instance: $INSTANCE_ID"
-              exit 1
-            }
-            
-            echo "Waiting for instance termination..."
+            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
             aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
           fi
-          
-          ASSOCIATION_ID=$(aws ec2 describe-addresses \
-            --allocation-ids eipalloc-092e331c98b8b9bfa \
-            --query 'Addresses[0].AssociationId' \
-            --output text)
-            
-          if [ "$ASSOCIATION_ID" != "None" ]; then
-            aws ec2 disassociate-address --association-id "$ASSOCIATION_ID" || {
-              echo "Failed to disassociate Elastic IP."
-              exit 1
-            }
-          fi
-          
-          echo "Deploying CloudFormation stack..."
-          aws cloudformation deploy \
+
+          # Deploy stack with detailed error output
+          echo "Deploying stack: $STACK_NAME"
+          if ! aws cloudformation deploy \
             --template-file ./dev/CloudFormation.yml \
             --stack-name "$STACK_NAME" \
-            --parameter-overrides \
-              SnapshotId="$SNAPSHOT_NAME" \
-            --capabilities CAPABILITY_IAM
-
-          echo "Stack deployed successfully!"
+            --parameter-overrides SnapshotId="$SNAPSHOT_NAME" \
+            --capabilities CAPABILITY_IAM \
+            2>&1 | tee deploy.log; then
+            
+            echo "Deployment failed. Events:"
+            aws cloudformation describe-stack-events \
+              --stack-name "$STACK_NAME" \
+              --query 'StackEvents[0:5].[ResourceStatus,ResourceStatusReason]' \
+              --output text
+            exit 1
+          fi
 
       - name: Verify deployment
+        if: success()
         run: |
-          echo "Verifying EC2 instance..."
           aws cloudformation describe-stacks \
             --stack-name "${{ env.STACK_NAME }}" \
-            --query 'Stacks[0].Outputs[?OutputKey==`InstanceId`].OutputValue' \
-            --output text
-            
-          echo "Verifying RDS endpoint..."
-          aws cloudformation describe-stacks \
-            --stack-name "${{ env.STACK_NAME }}" \
-            --query 'Stacks[0].Outputs[?OutputKey==`RDSEndpoint`].OutputValue' \
-            --output text
+            --query 'Stacks[0].Outputs' \
+            --output table

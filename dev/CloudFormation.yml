@@ -30,14 +30,13 @@ Resources:
   RDSInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBName: admin
       Engine: mariadb
       DBInstanceClass: db.t3.micro
       AllocatedStorage: 20
       DBSnapshotIdentifier: !Ref SnapshotId
       VPCSecurityGroups: 
         - sg-0d398eec1c6b95a6e
-      DBSubnetGroupName: default-vpc-0e7601c183cdf095f  # Use existing subnet group directly
+      DBSubnetGroupName: default-vpc-0e7601c183cdf095f
       PubliclyAccessible: true
       DBInstanceIdentifier: wp-green
       BackupRetentionPeriod: 0

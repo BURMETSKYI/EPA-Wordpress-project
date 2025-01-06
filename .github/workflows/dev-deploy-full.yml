@@ -6,6 +6,7 @@ on:
 jobs:
  deploy:
    runs-on: ubuntu-latest
+   environment: Development
    env:
      STACK_NAME: ""
      SNAPSHOT_ARN: "arn:aws:rds:eu-west-2:891377327225:snapshot:dev"
@@ -51,6 +52,19 @@ jobs:
              --output text
            exit 1
          fi
+
+     - name: Get RDS Endpoint Output
+       id: get_output
+       run: |
+         OUTPUT_VALUE=$(aws cloudformation describe-stacks \
+           --stack-name "${{ env.STACK_NAME }}" \
+           --query "Stacks[0].Outputs[?OutputKey=='RDSOutputKey'].OutputValue" \
+           --output text)
+         echo "RDS_ENDPOINT=$OUTPUT_VALUE" >> $GITHUB_ENV
+
+     - name: Save as Secret (requires PAT)
+       run: |
+         gh secret set RDS_ENDPOINT -b"$RDS_ENDPOINT"
 
      - name: Verify deployment
        if: success()

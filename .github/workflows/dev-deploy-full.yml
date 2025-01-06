@@ -60,7 +60,7 @@ jobs:
           RDS_ENDPOINT="${STACK_NAME}.cfk4aya0a4fd.eu-west-2.rds.amazonaws.com"
           echo "RDS_ENDPOINT=$RDS_ENDPOINT" >> $GITHUB_ENV
 
-      - name: Save RDS Endpoint as Secret
+      - name: Save RDS Endpoint as Secret using GitHub API
         env:
           GH_TOKEN: ${{ github.token }}
           RDS_ENDPOINT: ${{ env.RDS_ENDPOINT }}
@@ -70,8 +70,12 @@ jobs:
             exit 1
           fi
           
-          echo "Saving RDS endpoint as a GitHub secret..."
-          echo "$RDS_ENDPOINT" | gh secret set RDS_ENDPOINT -b- --app actions
+          echo "Saving RDS endpoint as a GitHub secret using API..."
+          curl -X PUT \
+            -H "Authorization: token $GH_TOKEN" \
+            -d "{\"encrypted_value\":\"$(echo -n $RDS_ENDPOINT | base64)\"}" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/secrets/RDS_ENDPOINT"
+
 
 
       - name: Verify deployment

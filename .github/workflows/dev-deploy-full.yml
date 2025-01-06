@@ -1,80 +1,61 @@
 name: Deploy DevEnv EC2-RDS
 on:
-  workflow_call:
-  workflow_dispatch:
-      
+ workflow_call:
+ workflow_dispatch:
+     
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    env:
-      STACK_NAME: ""
-    steps:
-      - uses: actions/checkout@v3
+ deploy:
+   runs-on: ubuntu-latest
+   env:
+     STACK_NAME: ""
+     SNAPSHOT_ARN: "arn:aws:rds:eu-west-2:891377327225:snapshot:dev"
+   steps:
+     - uses: actions/checkout@v3
+     - name: Configure AWS credentials
+       uses: aws-actions/configure-aws-credentials@v1
+       with:
+         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+     - name: Deploy CloudFormation stack
+       id: deploy-stack
+       run: |
+         STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
+         echo "STACK_NAME=$STACK_NAME" >> $GITHUB_ENV
 
-      - name: Create RDS Snapshot
-        id: create-snapshot
-        run: |
-          SNAPSHOT_NAME="wp-snapshot-$(date +'%Y%m%d-%H%M%S')"
-          echo "Creating snapshot: $SNAPSHOT_NAME"
-          aws rds create-db-snapshot \
-            --db-instance-identifier database-blue \
-            --db-snapshot-identifier "$SNAPSHOT_NAME" \
-            || { echo "Snapshot creation failed"; exit 1; }
-          
-          echo "Waiting for snapshot..."
-          aws rds wait db-snapshot-available \
-            --db-snapshot-identifier "$SNAPSHOT_NAME" \
-            || { echo "Snapshot wait failed"; exit 1; }
-          
-          echo "SNAPSHOT_NAME=$SNAPSHOT_NAME" >> $GITHUB_ENV
-          echo "✓ Snapshot created: $SNAPSHOT_NAME"
+         # Handle existing instance
+         INSTANCE_ID=$(aws ec2 describe-addresses \
+           --allocation-ids eipalloc-092e331c98b8b9bfa \
+           --query 'Addresses[0].InstanceId' \
+           --output text)
+         if [ "$INSTANCE_ID" != "None" ]; then
+           echo "Terminating instance: $INSTANCE_ID"
+           aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
+           aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
+         fi
 
-      - name: Deploy CloudFormation stack
-        id: deploy-stack
-        run: |
-          STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
-          echo "STACK_NAME=$STACK_NAME" >> $GITHUB_ENV
+         # Deploy stack with detailed error output
+         echo "Deploying stack: $STACK_NAME"
+         if ! aws cloudformation deploy \
+           --template-file ./dev/CloudFormation.yml \
+           --stack-name "$STACK_NAME" \
+           --parameter-overrides SnapshotId="$SNAPSHOT_ARN" \
+           --capabilities CAPABILITY_IAM \
+           2>&1 | tee deploy.log; then
+           
+           echo "Deployment failed. Events:"
+           aws cloudformation describe-stack-events \
+             --stack-name "$STACK_NAME" \
+             --query 'StackEvents[0:5].[ResourceStatus,ResourceStatusReason]' \
+             --output text
+           exit 1
+         fi
 
-          # Handle existing instance
-          INSTANCE_ID=$(aws ec2 describe-addresses \
-            --allocation-ids eipalloc-092e331c98b8b9bfa \
-            --query 'Addresses[0].InstanceId' \
-            --output text)
-
-          if [ "$INSTANCE_ID" != "None" ]; then
-            echo "Terminating instance: $INSTANCE_ID"
-            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
-            aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
-          fi
-
-          # Deploy stack with detailed error output
-          echo "Deploying stack: $STACK_NAME"
-          if ! aws cloudformation deploy \
-            --template-file ./dev/CloudFormation.yml \
-            --stack-name "$STACK_NAME" \
-            --parameter-overrides SnapshotId="$SNAPSHOT_NAME" \
-            --capabilities CAPABILITY_IAM \
-            2>&1 | tee deploy.log; then
-            
-            echo "Deployment failed. Events:"
-            aws cloudformation describe-stack-events \
-              --stack-name "$STACK_NAME" \
-              --query 'StackEvents[0:5].[ResourceStatus,ResourceStatusReason]' \
-              --output text
-            exit 1
-          fi
-
-      - name: Verify deployment
-        if: success()
-        run: |
-          aws cloudformation describe-stacks \
-            --stack-name "${{ env.STACK_NAME }}" \
-            --query 'Stacks[0].Outputs' \
-            --output table
+     - name: Verify deployment
+       if: success()
+       run: |
+         aws cloudformation describe-stacks \
+           --stack-name "${{ env.STACK_NAME }}" \
+           --query 'Stacks[0].Outputs' \
+           --output table

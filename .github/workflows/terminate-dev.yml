@@ -1,7 +1,6 @@
-name: Terminate EC2 Instance
-
+name: Terminate Resources
 on:
- workflow_dispatch: # Manual trigger
+ workflow_dispatch:
 
 jobs:
  terminate:
@@ -13,12 +12,11 @@ jobs:
          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
          aws-region: ${{ secrets.AWS_REGION }}
-         
-     - name: Terminate instance
+        
+     - name: Terminate EC2 instance
        run: |
          echo "Finding instance associated with EIP eipalloc-092e331c98b8b9bfa..."
          
-         # Get instance ID associated with the EIP
          INSTANCE_ID=$(aws ec2 describe-addresses \
            --allocation-ids eipalloc-092e331c98b8b9bfa \
            --query 'Addresses[0].InstanceId' \
@@ -35,12 +33,11 @@ jobs:
            echo "No instance found associated with this EIP"
          fi
          
-         # Disassociate EIP if needed
          ASSOCIATION_ID=$(aws ec2 describe-addresses \
            --allocation-ids eipalloc-092e331c98b8b9bfa \
            --query 'Addresses[0].AssociationId' \
            --output text)
-           
+          
          if [ "$ASSOCIATION_ID" != "None" ]; then
            echo "Disassociating Elastic IP..."
            aws ec2 disassociate-address --association-id "$ASSOCIATION_ID"
@@ -48,3 +45,23 @@ jobs:
          else
            echo "EIP is not associated with any instance"
          fi
+
+     - name: Terminate RDS instance
+       env:
+         RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
+       run: |
+         echo "Terminating RDS instance ${RDS_ENDPOINT}..."
+         
+         DB_IDENTIFIER=$(echo "${RDS_ENDPOINT}" | cut -d'.' -f1)
+         echo "DB Identifier: ${DB_IDENTIFIER}"
+         
+         aws rds delete-db-instance \
+           --db-instance-identifier "${DB_IDENTIFIER}" \
+           --skip-final-snapshot \
+           --delete-automated-backups
+         
+         echo "Waiting for RDS instance deletion..."
+         aws rds wait db-instance-deleted \
+           --db-instance-identifier "${DB_IDENTIFIER}"
+           
+         echo "RDS instance deleted successfully"

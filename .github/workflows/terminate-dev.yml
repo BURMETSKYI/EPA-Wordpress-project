@@ -1,4 +1,4 @@
-name: Dev Down
+name: Dev Terminate
 on:
  workflow_dispatch:
 

@@ -1,27 +1,56 @@
-AWSTemplateFormatVersion: '2010-09-09' 
-Description: CloudFormation template to create an EC2 t2.micro instance running Ubuntu 24.04 LTS in eu-west-2a and associate an existing Elastic IP
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create EC2 instance and RDS from snapshot
+
+Parameters:
+ SnapshotId:
+   Type: String
+   Description: RDS snapshot ID to restore from
 
 Resources:
-  MyEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t2.small
-      ImageId: ami-05c172c7f0d3aed00
-      KeyName: epa-lemp
-      SecurityGroupIds:
-        - sg-0d398eec1c6b95a6e
-      SubnetId: subnet-0d32b4be618fe4343
-      IamInstanceProfile: s3fs-role
-      Tags:
-        - Key: Name
-          Value: WP-Dev
+ MyEC2Instance:
+   Type: AWS::EC2::Instance
+   Properties:
+     InstanceType: t2.small
+     ImageId: ami-05c172c7f0d3aed00
+     KeyName: epa-lemp
+     SecurityGroupIds:
+       - sg-0d398eec1c6b95a6e
+     SubnetId: subnet-0d32b4be618fe4343
+     IamInstanceProfile: s3fs-role
+     Tags:
+       - Key: Name
+         Value: WP-Dev
 
-  EIPAssociation:
-    Type: AWS::EC2::EIPAssociation
-    Properties:
-      InstanceId: !Ref MyEC2Instance
-      AllocationId: eipalloc-092e331c98b8b9bfa
+ EIPAssociation:
+   Type: AWS::EC2::EIPAssociation
+   Properties:
+     InstanceId: !Ref MyEC2Instance
+     AllocationId: eipalloc-092e331c98b8b9bfa
+
+ RDSInstance:
+   Type: AWS::RDS::DBInstance
+   Properties:
+     DBName: admin
+     Engine: mariadb
+     DBInstanceClass: db.t3.micro
+     AllocatedStorage: 20
+     DBSnapshotIdentifier: !Ref SnapshotId
+     VPCSecurityGroups: 
+       - sg-0d398eec1c6b95a6e
+     DBSubnetGroupName: default-vpc
+     PubliclyAccessible: true
+     DBInstanceIdentifier: wp-green
+     BackupRetentionPeriod: 0
+     DeletionProtection: false
+     Tags:
+       - Key: Name
+         Value: WP-Green
+
 Outputs:
-  InstanceId:
-    Description: ID of the created EC2 instance
-    Value: !Ref MyEC2Instance
+ InstanceId:
+   Description: ID of the created EC2 instance
+   Value: !Ref MyEC2Instance
+ 
+ RDSEndpoint:
+   Description: RDS Connection Endpoint
+   Value: !GetAtt RDSInstance.Endpoint.Address

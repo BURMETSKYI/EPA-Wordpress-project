@@ -1,4 +1,4 @@
-name: Dev Env 
+name: DevEnv EC2-RDS
 on:
   workflow_call:
   workflow_dispatch:

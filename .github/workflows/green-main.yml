@@ -183,6 +183,18 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/dump-restore.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
 
+    - name: Run cloudflare-dns.sh on the VM
+      run: |
+        echo "Running cloudflare-dns.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run certbot-ssl-install.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -207,18 +219,6 @@ jobs:
         aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
         aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
         echo "EC2 instance $INSTANCE_ID terminated successfully."
-
-    - name: Run cloudflare-dns.sh on the VM
-      run: |
-        echo "Running cloudflare-dns.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
-        echo "Script executed successfully."
-
-    - name: Run certbot-ssl-install.sh on the VM
-      run: |
-        echo "Running certbot-ssl-install.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
-        echo "Script executed successfully."
 
     - name: Run test-dump-restore.sh on the VM
       run: |

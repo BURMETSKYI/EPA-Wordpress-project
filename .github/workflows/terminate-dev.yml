@@ -1,67 +1,101 @@
-name: Dev Down
+name: Dev Env 
 on:
- workflow_dispatch:
-
+  workflow_call:
+  workflow_dispatch:
+      
 jobs:
- terminate:
-   runs-on: ubuntu-latest
-   steps:
-     - name: Configure AWS credentials
-       uses: aws-actions/configure-aws-credentials@v1
-       with:
-         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-         aws-region: ${{ secrets.AWS_REGION }}
-        
-     - name: Terminate EC2 instance
-       run: |
-         echo "Finding instance associated with EIP eipalloc-092e331c98b8b9bfa..."
-         
-         INSTANCE_ID=$(aws ec2 describe-addresses \
-           --allocation-ids eipalloc-092e331c98b8b9bfa \
-           --query 'Addresses[0].InstanceId' \
-           --output text)
-         
-         if [ "$INSTANCE_ID" != "None" ]; then
-           echo "Found instance $INSTANCE_ID, terminating..."
-           aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
-           
-           echo "Waiting for instance termination..."
-           aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
-           echo "Instance terminated successfully"
-         else
-           echo "No instance found associated with this EIP"
-         fi
-         
-         ASSOCIATION_ID=$(aws ec2 describe-addresses \
-           --allocation-ids eipalloc-092e331c98b8b9bfa \
-           --query 'Addresses[0].AssociationId' \
-           --output text)
-          
-         if [ "$ASSOCIATION_ID" != "None" ]; then
-           echo "Disassociating Elastic IP..."
-           aws ec2 disassociate-address --association-id "$ASSOCIATION_ID"
-           echo "EIP disassociated successfully"
-         else
-           echo "EIP is not associated with any instance"
-         fi
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-     - name: Terminate RDS instance
-       env:
-         RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT_G }}
-       run: |
-         echo "Terminating RDS instance ${RDS_ENDPOINT}..."
-         
-         DB_IDENTIFIER=$(echo "${RDS_ENDPOINT}" | cut -d'.' -f1)
-         echo "DB Identifier: ${DB_IDENTIFIER}"
-         
-         aws rds delete-db-instance \
-           --db-instance-identifier "${DB_IDENTIFIER}" \
-           --skip-final-snapshot \
-           --delete-automated-backups
-         
-         echo "Waiting for RDS instance deletion..."
-         aws rds wait db-instance-deleted \
-           --db-instance-identifier "${DB_IDENTIFIER}"
-           
-         echo "RDS instance deleted successfully"
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create RDS Snapshot
+        run: |
+          SNAPSHOT_NAME="wp-snapshot-$(date +'%Y%m%d-%H%M%S')"
+          echo "Creating RDS snapshot: $SNAPSHOT_NAME"
+          
+          aws rds create-db-snapshot \
+            --db-instance-identifier database-blue \
+            --db-snapshot-identifier "$SNAPSHOT_NAME"
+            
+          echo "Waiting for snapshot to complete..."
+          aws rds wait db-snapshot-available \
+            --db-snapshot-identifier "$SNAPSHOT_NAME"
+            
+          echo "SNAPSHOT_NAME=$SNAPSHOT_NAME" >> $GITHUB_ENV
+
+      - name: Deploy CloudFormation stack
+        run: |
+          STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
+          echo "STACK_NAME is: $STACK_NAME"
+          
+          if [ -z "$STACK_NAME" ]; then
+            echo "Error: STACK_NAME is empty!"
+            exit 1
+          fi
+
+          if [ ! -f ./dev/CloudFormation.yml ]; then
+            echo "Error: CloudFormation.yml not found!"
+            exit 1
+          fi
+
+          # Handle EC2 instance
+          INSTANCE_ID=$(aws ec2 describe-addresses \
+            --allocation-ids eipalloc-092e331c98b8b9bfa \
+            --query 'Addresses[0].InstanceId' \
+            --output text)
+          
+          if [ "$INSTANCE_ID" != "None" ]; then
+            echo "Terminating instance: $INSTANCE_ID"
+            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID" || {
+              echo "Failed to terminate instance: $INSTANCE_ID"
+              exit 1
+            }
+            
+            echo "Waiting for instance termination..."
+            aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
+          fi
+          
+          ASSOCIATION_ID=$(aws ec2 describe-addresses \
+            --allocation-ids eipalloc-092e331c98b8b9bfa \
+            --query 'Addresses[0].AssociationId' \
+            --output text)
+            
+          if [ "$ASSOCIATION_ID" != "None" ]; then
+            aws ec2 disassociate-address --association-id "$ASSOCIATION_ID" || {
+              echo "Failed to disassociate Elastic IP."
+              exit 1
+            }
+          fi
+          
+          echo "Deploying CloudFormation stack..."
+          aws cloudformation deploy \
+            --template-file ./dev/CloudFormation.yml \
+            --stack-name "$STACK_NAME" \
+            --parameter-overrides \
+              SnapshotId="$SNAPSHOT_NAME" \
+            --capabilities CAPABILITY_IAM
+
+          echo "Stack deployed successfully!"
+
+      - name: Verify deployment
+        run: |
+          echo "Verifying EC2 instance..."
+          aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" \
+            --query 'Stacks[0].Outputs[?OutputKey==`InstanceId`].OutputValue' \
+            --output text
+            
+          echo "Verifying RDS endpoint..."
+          aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" \
+            --query 'Stacks[0].Outputs[?OutputKey==`RDSEndpoint`].OutputValue' \
+            --output text

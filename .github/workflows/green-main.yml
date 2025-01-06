@@ -154,12 +154,7 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/lemp-setup.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
 
-    - name: Run cloudflare-dns.sh on the VM
-      run: |
-        echo "Running cloudflare-dns.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
-        echo "Script executed successfully."
-    
+      
     - name: Run wordpress-install.sh on the VM
       run: |
         echo "Running wordpress-install.sh on VM..."
@@ -212,6 +207,12 @@ jobs:
         aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
         aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
         echo "EC2 instance $INSTANCE_ID terminated successfully."
+
+    - name: Run cloudflare-dns.sh on the VM
+      run: |
+        echo "Running cloudflare-dns.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP_GREEN }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
 
     - name: Run certbot-ssl-install.sh on the VM
       run: |

@@ -1,4 +1,4 @@
-name: DevEnv UP 
+name: DevEnv EC2
 
 on:
   workflow_call:

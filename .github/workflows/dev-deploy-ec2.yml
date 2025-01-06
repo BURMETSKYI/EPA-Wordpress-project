@@ -69,7 +69,7 @@ jobs:
           
           # Deploy the CloudFormation stack
           echo "Deploying CloudFormation stack..."
-          aws cloudformation deploy --template-file ./dev/CloudFormation.yml --stack-name "$STACK_NAME" || {
+          aws cloudformation deploy --template-file ./dev/CloudFormationEC2.yml --stack-name "$STACK_NAME" || {
             echo "CloudFormation stack deployment failed!"
             exit 1
           }

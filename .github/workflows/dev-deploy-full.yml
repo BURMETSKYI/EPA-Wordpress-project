@@ -2,7 +2,7 @@ name: Deploy DevEnv EC2-RDS
 on:
   workflow_call:
   workflow_dispatch:
-    
+     
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,6 +26,7 @@ jobs:
           STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
           echo "STACK_NAME=$STACK_NAME" >> $GITHUB_ENV
 
+          # Handle existing instance
           INSTANCE_ID=$(aws ec2 describe-addresses \
             --allocation-ids eipalloc-092e331c98b8b9bfa \
             --query 'Addresses[0].InstanceId' \
@@ -36,6 +37,7 @@ jobs:
             aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
           fi
 
+          # Deploy stack
           echo "Deploying stack: $STACK_NAME"
           if ! aws cloudformation deploy \
             --template-file ./dev/CloudFormation.yml \
@@ -61,11 +63,14 @@ jobs:
             --output text)
           echo "RDS_ENDPOINT=$ENDPOINT" >> $GITHUB_ENV
 
-      - name: Update Environment Secret
-        run: |
-          echo "${{ env.RDS_ENDPOINT }}" | gh secret set RDS_ENDPOINT --env Development --body -
-        env:
-          GH_TOKEN: ${{ secrets.GH_PAT }}
+      - name: Update RDS Endpoint Secret
+        uses: gliech/create-github-secret-action@v1
+        with:
+          name: 'RDS_ENDPOINT'
+          value: ${{ env.RDS_ENDPOINT }}
+          pa_token: ${{ secrets.GH_PAT }}
+          location: 'Development'
+          org_visibility: 'private'
 
       - name: Verify deployment
         if: success()

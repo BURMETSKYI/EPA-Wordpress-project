@@ -2,65 +2,55 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create EC2 instance and RDS from snapshot
 
 Parameters:
- SnapshotId:
-   Type: String
-   Description: RDS snapshot ID to restore from
+  SnapshotId:
+    Type: String
+    Description: RDS snapshot ID to restore from
 
 Resources:
- RDSSubnetGroup:
-   Type: AWS::RDS::DBSubnetGroup
-   Properties:
-     DBSubnetGroupDescription: Subnet group for RDS instances
-     DBSubnetGroupName: default-vpc-0e7601c183cdf095f  # Use existing subnet group name
-     SubnetIds:
-       - subnet-06b45e41e0ae26e04
-       - subnet-0d32b4be618fe4343
-       - subnet-08fe07eefa12b4b93
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.small
+      ImageId: ami-05c172c7f0d3aed00
+      KeyName: epa-lemp
+      SecurityGroupIds:
+        - sg-0d398eec1c6b95a6e
+      SubnetId: subnet-0d32b4be618fe4343
+      IamInstanceProfile: s3fs-role
+      Tags:
+        - Key: Name
+          Value: WP-Dev
 
- MyEC2Instance:
-   Type: AWS::EC2::Instance
-   Properties:
-     InstanceType: t2.small
-     ImageId: ami-05c172c7f0d3aed00
-     KeyName: epa-lemp
-     SecurityGroupIds:
-       - sg-0d398eec1c6b95a6e
-     SubnetId: subnet-0d32b4be618fe4343
-     IamInstanceProfile: s3fs-role
-     Tags:
-       - Key: Name
-         Value: WP-Dev
+  EIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref MyEC2Instance
+      AllocationId: eipalloc-092e331c98b8b9bfa
 
- EIPAssociation:
-   Type: AWS::EC2::EIPAssociation
-   Properties:
-     InstanceId: !Ref MyEC2Instance
-     AllocationId: eipalloc-092e331c98b8b9bfa
-
- RDSInstance:
-   Type: AWS::RDS::DBInstance
-   Properties:
-     DBName: admin
-     Engine: mariadb
-     DBInstanceClass: db.t3.micro
-     AllocatedStorage: 20
-     DBSnapshotIdentifier: !Ref SnapshotId
-     VPCSecurityGroups: 
-       - sg-0d398eec1c6b95a6e
-     DBSubnetGroupName: !Ref RDSSubnetGroup
-     PubliclyAccessible: true
-     DBInstanceIdentifier: wp-green
-     BackupRetentionPeriod: 0
-     DeletionProtection: false
-     Tags:
-       - Key: Name
-         Value: WP-Green
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBName: admin
+      Engine: mariadb
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      DBSnapshotIdentifier: !Ref SnapshotId
+      VPCSecurityGroups: 
+        - sg-0d398eec1c6b95a6e
+      DBSubnetGroupName: default-vpc-0e7601c183cdf095f  # Use existing subnet group directly
+      PubliclyAccessible: true
+      DBInstanceIdentifier: wp-green
+      BackupRetentionPeriod: 0
+      DeletionProtection: false
+      Tags:
+        - Key: Name
+          Value: WP-Green
 
 Outputs:
- InstanceId:
-   Description: ID of the created EC2 instance
-   Value: !Ref MyEC2Instance
- 
- RDSEndpoint:
-   Description: RDS Connection Endpoint
-   Value: !GetAtt RDSInstance.Endpoint.Address
+  InstanceId:
+    Description: ID of the created EC2 instance
+    Value: !Ref MyEC2Instance
+  
+  RDSEndpoint:
+    Description: RDS Connection Endpoint
+    Value: !GetAtt RDSInstance.Endpoint.Address

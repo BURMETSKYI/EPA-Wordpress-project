@@ -1,4 +1,4 @@
-name: Dev UP 
+name: DevEnv UP 
 
 on:
   workflow_call:

@@ -1,4 +1,4 @@
-name: Terminate Dev Env
+name: Dev Down
 on:
  workflow_dispatch:
 
@@ -48,7 +48,7 @@ jobs:
 
      - name: Terminate RDS instance
        env:
-         RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
+         RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT_G }}
        run: |
          echo "Terminating RDS instance ${RDS_ENDPOINT}..."
          

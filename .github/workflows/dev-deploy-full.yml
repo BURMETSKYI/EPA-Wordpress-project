@@ -25,18 +25,22 @@ jobs:
         run: |
           STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
           echo "STACK_NAME=$STACK_NAME" >> $GITHUB_ENV
-
+          
           # Handle existing instance
           INSTANCE_ID=$(aws ec2 describe-addresses \
             --allocation-ids eipalloc-092e331c98b8b9bfa \
             --query 'Addresses[0].InstanceId' \
             --output text)
+          
           if [ "$INSTANCE_ID" != "None" ]; then
             echo "Terminating instance: $INSTANCE_ID"
-            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
+            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID" || {
+              echo "Failed to terminate instance"
+              exit 1
+            }
             aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
           fi
-
+          
           # Deploy stack
           echo "Deploying stack: $STACK_NAME"
           if ! aws cloudformation deploy \
@@ -46,31 +50,40 @@ jobs:
             --capabilities CAPABILITY_IAM \
             2>&1 | tee deploy.log; then
             
-            echo "Deployment failed. Events:"
+            echo "Deployment failed. Last events:"
             aws cloudformation describe-stack-events \
               --stack-name "$STACK_NAME" \
               --query 'StackEvents[0:5].[ResourceStatus,ResourceStatusReason]' \
-              --output text
+              --output table
             exit 1
           fi
 
       - name: Get RDS Endpoint
+        id: get-endpoint
         if: success()
         run: |
           ENDPOINT=$(aws cloudformation describe-stacks \
             --stack-name "$STACK_NAME" \
             --query 'Stacks[0].Outputs[?OutputKey==`RDSEndpoint`].OutputValue' \
             --output text)
+          
+          if [ -z "$ENDPOINT" ]; then
+            echo "Error: Failed to get RDS endpoint"
+            exit 1
+          fi
+          
           echo "RDS_ENDPOINT=$ENDPOINT" >> $GITHUB_ENV
 
       - name: Update RDS Endpoint Secret
-        uses: gliech/create-github-secret-action@v1
-        with:
-          name: 'RDS_ENDPOINT'
-          value: ${{ env.RDS_ENDPOINT }}
-          pa_token: ${{ secrets.GH_PAT }}
-          location: 'environments/Development'
-          org_visibility: 'private'
+        if: success()
+        run: |
+          gh auth login --with-token <<< "${{ secrets.GH_PAT }}"
+          gh secret set RDS_ENDPOINT --env Development --body "${{ env.RDS_ENDPOINT }}" || {
+            echo "Failed to update secret"
+            exit 1
+          }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
       - name: Verify deployment
         if: success()

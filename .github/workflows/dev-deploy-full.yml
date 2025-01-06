@@ -62,7 +62,7 @@ jobs:
 
       - name: Save RDS Endpoint as Secret
         env:
-          GH_PAT: ${{ secrets.GH_PAT }}
+          GH_TOKEN: ${{ github.token }}
           RDS_ENDPOINT: ${{ env.RDS_ENDPOINT }}
         run: |
           if [ -z "$RDS_ENDPOINT" ]; then

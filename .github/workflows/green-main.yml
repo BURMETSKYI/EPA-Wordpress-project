@@ -71,7 +71,8 @@ jobs:
 
         echo "Editing Cloudflare variables in cloudflare-dns.sh..."
         sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./cloudflare-dns.sh
-        sed -i 's/S_ELASTIC_IP/${{ secrets.ELASTIC_IP_GREEN }}/g' ./cloudflare-dns.sh
+        sed -i 's/NEW_ELASTIC_IP/${{ secrets.ELASTIC_IP_GREEN }}/g' ./cloudflare-dns.sh
+        sed -i 's/OLD_ELASTIC_IP/${{ secrets.ELASTIC_IP }}/g' ./cloudflare-dns.sh
         sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./cloudflare-dns.sh
         sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./cloudflare-dns.sh
         cat ./cloudflare-dns.sh  # Print file contents to confirm the edits

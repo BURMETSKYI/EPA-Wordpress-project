@@ -1,87 +1,83 @@
 name: Deploy DevEnv EC2-RDS
 on:
-  workflow_call:
-  workflow_dispatch:
-     
+ workflow_call:
+ workflow_dispatch:
+    
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment: Development
-    env:
-      STACK_NAME: ""
-      SNAPSHOT_ARN: "arn:aws:rds:eu-west-2:891377327225:snapshot:dev"
-    steps:
-      - uses: actions/checkout@v3
+ deploy:
+   runs-on: ubuntu-latest
+   environment: Development
+   env:
+     STACK_NAME: ""
+     SNAPSHOT_ARN: "arn:aws:rds:eu-west-2:891377327225:snapshot:dev"
+   steps:
+     - uses: actions/checkout@v3
+     
+     - name: Configure AWS credentials
+       uses: aws-actions/configure-aws-credentials@v1
+       with:
+         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+         aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+     - name: Deploy CloudFormation stack
+       id: deploy-stack
+       run: |
+         STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
+         echo "STACK_NAME=$STACK_NAME" >> $GITHUB_ENV
 
-      - name: Deploy CloudFormation stack
-        id: deploy-stack
-        run: |
-          STACK_NAME="WP-DEV-$(date +'%Y%m%d-%H%M%S')"
-          echo "STACK_NAME=$STACK_NAME" >> $GITHUB_ENV
+         # Handle existing instance
+         INSTANCE_ID=$(aws ec2 describe-addresses \
+           --allocation-ids eipalloc-092e331c98b8b9bfa \
+           --query 'Addresses[0].InstanceId' \
+           --output text)
+         if [ "$INSTANCE_ID" != "None" ]; then
+           echo "Terminating instance: $INSTANCE_ID"
+           aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
+           aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
+         fi
 
-          # Handle existing instance
-          INSTANCE_ID=$(aws ec2 describe-addresses \
-            --allocation-ids eipalloc-092e331c98b8b9bfa \
-            --query 'Addresses[0].InstanceId' \
-            --output text)
-          if [ "$INSTANCE_ID" != "None" ]; then
-            echo "Terminating instance: $INSTANCE_ID"
-            aws ec2 terminate-instances --instance-ids "$INSTANCE_ID"
-            aws ec2 wait instance-terminated --instance-ids "$INSTANCE_ID"
-          fi
+         # Deploy stack with detailed error output
+         echo "Deploying stack: $STACK_NAME"
+         if ! aws cloudformation deploy \
+           --template-file ./dev/CloudFormation.yml \
+           --stack-name "$STACK_NAME" \
+           --parameter-overrides SnapshotId="$SNAPSHOT_ARN" \
+           --capabilities CAPABILITY_IAM \
+           2>&1 | tee deploy.log; then
+           
+           echo "Deployment failed. Events:"
+           aws cloudformation describe-stack-events \
+             --stack-name "$STACK_NAME" \
+             --query 'StackEvents[0:5].[ResourceStatus,ResourceStatusReason]' \
+             --output text
+           exit 1
+         fi
 
-          # Deploy stack with detailed error output
-          echo "Deploying stack: $STACK_NAME"
-          if ! aws cloudformation deploy \
-            --template-file ./dev/CloudFormation.yml \
-            --stack-name "$STACK_NAME" \
-            --parameter-overrides SnapshotId="$SNAPSHOT_ARN" \
-            --capabilities CAPABILITY_IAM \
-            2>&1 | tee deploy.log; then
-            
-            echo "Deployment failed. Events:"
-            aws cloudformation describe-stack-events \
-              --stack-name "$STACK_NAME" \
-              --query 'StackEvents[0:5].[ResourceStatus,ResourceStatusReason]' \
-              --output text
-            exit 1
-          fi
+     - name: Get RDS Endpoint
+       if: success()
+       run: |
+         ENDPOINT=$(aws cloudformation describe-stacks \
+           --stack-name "$STACK_NAME" \
+           --query 'Stacks[0].Outputs[?OutputKey==`RDSEndpoint`].OutputValue' \
+           --output text)
+         echo "RDS_ENDPOINT=$ENDPOINT" >> $GITHUB_ENV
 
-      - name: Assign RDS Endpoint
-        run: |
-          # Assign RDS endpoint manually using stack name
-          RDS_ENDPOINT="${STACK_NAME}.cfk4aya0a4fd.eu-west-2.rds.amazonaws.com"
-          echo "RDS_ENDPOINT=$RDS_ENDPOINT" >> $GITHUB_ENV
+     - name: Update RDS Endpoint Secret
+       uses: gliech/create-github-secret-action@v1
+       with:
+         name: 'RDS_ENDPOINT'
+         value: ${{ env.RDS_ENDPOINT }}
+         pa_token: ${{ secrets.GH_PAT }}
+         repository: ${{ github.repository }}
 
-      - name: Save RDS Endpoint as Secret using GitHub API
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RDS_ENDPOINT: ${{ env.RDS_ENDPOINT }}
-        run: |
-          if [ -z "$RDS_ENDPOINT" ]; then
-            echo "Error: RDS_ENDPOINT is empty. Cannot save as secret."
-            exit 1
-          fi
-          
-          echo "Saving RDS endpoint as a GitHub secret using API..."
-          curl -X PUT \
-            -H "Authorization: token $GH_TOKEN" \
-            -d "{\"encrypted_value\":\"$(echo -n $RDS_ENDPOINT | base64)\"}" \
-            "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/secrets/RDS_ENDPOINT"
-
-
-
-      - name: Verify deployment
-        if: success()
-        run: |
-          aws cloudformation describe-stacks \
-            --stack-name "${{ env.STACK_NAME }}" \
-            --query 'Stacks[0].Outputs' \
-            --output table
+     - name: Verify deployment
+       if: success()
+       run: |
+         echo "Stack Outputs:"
+         aws cloudformation describe-stacks \
+           --stack-name "${{ env.STACK_NAME }}" \
+           --query 'Stacks[0].Outputs' \
+           --output table
+         
+         echo "RDS Endpoint saved: ${{ env.RDS_ENDPOINT }}"

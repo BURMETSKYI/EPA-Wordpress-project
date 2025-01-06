@@ -49,6 +49,7 @@ jobs:
         DB_USERNAME: ${{ secrets.DB_USERNAME }}
         S_STORAGE_URL: ${{ secrets.S_STORAGE_URL }}
         S_DOMAIN: ${{ secrets.S_DOMAIN }}
+        RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
         
       run: |
         echo "Editing Cloudflare variables in lemp-setup.sh..."

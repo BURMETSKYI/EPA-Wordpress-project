@@ -60,11 +60,22 @@ jobs:
            --stack-name "${{ env.STACK_NAME }}" \
            --query "Stacks[0].Outputs[?OutputKey=='RDSOutputKey'].OutputValue" \
            --output text)
-         echo "RDS_ENDPOINT=$OUTPUT_VALUE" >> $GITHUB_ENV
+         echo "RDS_ENDPOINT=wp-green-$OUTPUT_VALUE" >> $GITHUB_ENV
 
-     - name: Save as Secret (requires PAT)
+     - name: Save RDS Endpoint as Secret
+       if: success()
+       env:
+         GH_PAT: ${{ secrets.GH_PAT }}
        run: |
-         gh secret set RDS_ENDPOINT -b"$RDS_ENDPOINT"
+         if [ -z "$RDS_ENDPOINT" ]; then
+           echo "Error: RDS_ENDPOINT is empty. Cannot save as secret."
+           exit 1
+         fi
+         
+         echo "Saving RDS endpoint as a GitHub secret..."
+         echo "$RDS_ENDPOINT"
+         echo "$RDS_ENDPOINT" | gh secret set RDS_ENDPOINT -b- --app actions
+
 
      - name: Verify deployment
        if: success()

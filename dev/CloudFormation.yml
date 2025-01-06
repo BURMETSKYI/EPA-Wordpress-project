@@ -7,6 +7,16 @@ Parameters:
    Description: RDS snapshot ID to restore from
 
 Resources:
+ RDSSubnetGroup:
+   Type: AWS::RDS::DBSubnetGroup
+   Properties:
+     DBSubnetGroupDescription: Subnet group for RDS instances
+     DBSubnetGroupName: default-vpc-0e7601c183cdf095f  # Use existing subnet group name
+     SubnetIds:
+       - subnet-06b45e41e0ae26e04
+       - subnet-0d32b4be618fe4343
+       - subnet-08fe07eefa12b4b93
+
  MyEC2Instance:
    Type: AWS::EC2::Instance
    Properties:
@@ -37,7 +47,7 @@ Resources:
      DBSnapshotIdentifier: !Ref SnapshotId
      VPCSecurityGroups: 
        - sg-0d398eec1c6b95a6e
-     DBSubnetGroupName: default-vpc
+     DBSubnetGroupName: !Ref RDSSubnetGroup
      PubliclyAccessible: true
      DBInstanceIdentifier: wp-green
      BackupRetentionPeriod: 0

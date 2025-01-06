@@ -38,7 +38,7 @@ Resources:
         - sg-0d398eec1c6b95a6e
       DBSubnetGroupName: default-vpc-0e7601c183cdf095f
       PubliclyAccessible: true
-      DBInstanceIdentifier: !Sub wp-green-${AWS::StackName}  # Make unique using stack name
+      DBInstanceIdentifier: !Sub ${AWS::StackName}  # Make unique using stack name
       BackupRetentionPeriod: 0
       DeletionProtection: false
 

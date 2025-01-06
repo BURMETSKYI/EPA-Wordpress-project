@@ -28,19 +28,19 @@ Resources:
       AllocationId: eipalloc-092e331c98b8b9bfa
 
   RDSInstance:
-  Type: AWS::RDS::DBInstance
-  Properties:
-    Engine: mariadb
-    DBInstanceClass: db.t3.micro
-    AllocatedStorage: 20
-    DBSnapshotIdentifier: !Ref SnapshotId
-    VPCSecurityGroups: 
-      - sg-0d398eec1c6b95a6e
-    DBSubnetGroupName: default-vpc-0e7601c183cdf095f
-    PubliclyAccessible: true
-    DBInstanceIdentifier: !Sub wp-green-${AWS::StackName}  # Make unique using stack name
-    BackupRetentionPeriod: 0
-    DeletionProtection: false
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: mariadb
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: 20
+      DBSnapshotIdentifier: !Ref SnapshotId
+      VPCSecurityGroups: 
+        - sg-0d398eec1c6b95a6e
+      DBSubnetGroupName: default-vpc-0e7601c183cdf095f
+      PubliclyAccessible: true
+      DBInstanceIdentifier: !Sub wp-green-${AWS::StackName}  # Make unique using stack name
+      BackupRetentionPeriod: 0
+      DeletionProtection: false
 
 Outputs:
   InstanceId:

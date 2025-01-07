@@ -1,4 +1,4 @@
-name: Blue/Green Env 
+name: Deploy Blue/Green Env 
 on:
   workflow_call:
   workflow_dispatch:

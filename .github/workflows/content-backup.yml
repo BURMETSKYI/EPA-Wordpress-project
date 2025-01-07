@@ -1,0 +1,47 @@
+name: DB Backup from Dev
+
+on:
+  workflow_call:
+    secrets:
+      SSH_PORT:
+        required: true
+      SSH_USERNAME:
+        required: true
+      ELASTIC_IP_GREEN:
+        required: true 
+  workflow_dispatch: 
+  
+jobs:
+  deploy_to_dev:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: Development  
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up SSH private key
+      run: |
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+        chmod 600 private_key
+        echo "Private key set up successfully."
+
+    - name: Debug SSH connection
+      env:
+        ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
+        SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
+      run: |
+        echo "Testing SSH connection to $ELASTIC_IP as $SSH_USERNAME on port $SSH_PORT..."
+        ssh -vvv -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP "echo 'SSH Connection Successful'"
+
+    - name: Run dump-backup.sh on the VM
+      env:
+        ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
+        SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
+      run: |
+        echo "Running dump-backup.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/content-backup.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."

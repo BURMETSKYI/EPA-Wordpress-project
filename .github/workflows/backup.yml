@@ -1,4 +1,4 @@
-name: Backup from Dev
+name: DB Backup from Dev
 
 on:
   workflow_call:

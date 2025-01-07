@@ -42,6 +42,6 @@ jobs:
         SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
         SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
-        echo "Running dump-backup.sh on VM..."
+        echo "Running content-backup.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/qa/content-backup.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."

@@ -108,7 +108,7 @@ jobs:
 
         echo "Editing variables variables in zabbix-agent.sh..."
         sed -i 's/S_ZABBIX_IP/${{ secrets.ZABBIX_IP }}/g' ./zabbix/zabbix-agent.sh
-        sed -i 's/CLIENT_HOSTNAME/${{ secrets.HOSTNAME }}/g' ./zabbix/zabbix-agent.sh
+        sed -i 's/CLIENT_HOSTNAME/${{ secrets.HOSTNAME_GREEN }}/g' ./zabbix/zabbix-agent.sh
         cat ./zabbix/zabbix-agent.sh  # Print file contents to confirm the edits
      
     - name: Copy files to VM

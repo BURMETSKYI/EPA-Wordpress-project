@@ -18,6 +18,8 @@ check_exit_status() {
 # Clear the log file
 > $LOG_FILE
 
+sudo chown ubuntu: /var/log/zabbix-setup.log
+
 # Install Zabbix agent
 echo "Installing Zabbix agent..." | tee -a $LOG_FILE
 sudo wget -q https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu24.04_all.deb

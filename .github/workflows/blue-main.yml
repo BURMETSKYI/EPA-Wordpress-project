@@ -145,6 +145,12 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/git-setup.sh || { echo "Script failed"; exit 1; }' 
         echo "Script executed successfully."
 
+    - name: Run zabbix-agent.sh on the VM
+      run: |
+        echo "Running zabbix-agent.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/zabbix/zabbix-agent.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
     - name: Run lemp-setup.sh on the VM
       run: |
         echo "Running lemp-setup.sh on VM..."
@@ -191,13 +197,7 @@ jobs:
         echo "Running certbot-ssl-install.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
-
-    - name: Run zabbix-agent.sh on the VM
-      run: |
-        echo "Running zabbix-agent.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/zabbix/zabbix-agent.sh || { echo "Script failed"; exit 1; }'
-        echo "Script executed successfully."
-    
+  
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -205,7 +205,6 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
       
-
     - name: Get associated instance ID
       id: get_instance_id
       run: |

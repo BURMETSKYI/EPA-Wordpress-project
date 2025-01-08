@@ -31,15 +31,15 @@ echo "Configuring Zabbix agent..." | tee -a $LOG_FILE
 CONFIG_FILE="/etc/zabbix/zabbix_agentd.conf"
 
 # Update 'Server' parameter
-sudo sed -i "s|^# Server=.*|Server=${ZABBIX_IP}|" $CONFIG_FILE
+sudo sed -i "s|^Server=.*|Server=${ZABBIX_IP}|" $CONFIG_FILE
 check_exit_status "Set Server in configuration"
 
 # Update 'ServerActive' parameter
-sudo sed -i "s|^# ServerActive=.*|ServerActive=${ZABBIX_IP}|" $CONFIG_FILE
+sudo sed -i "s|^ServerActive=.*|ServerActive=${ZABBIX_IP}|" $CONFIG_FILE
 check_exit_status "Set ServerActive in configuration"
 
 # Update 'Hostname' parameter
-sudo sed -i "s|^# Hostname=.*|Hostname=${HOSTNAME}|" $CONFIG_FILE
+sudo sed -i "s|^Hostname=.*|Hostname=${HOSTNAME}|" $CONFIG_FILE
 check_exit_status "Set Hostname in configuration"
 
 # Restart Zabbix agent service

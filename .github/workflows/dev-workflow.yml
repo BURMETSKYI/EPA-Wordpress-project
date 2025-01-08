@@ -162,6 +162,12 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/git-setup.sh || { echo "Script failed"; exit 1; }' 
         echo "Script executed successfully."
 
+    - name: Run zabbix-agent.sh on the VM
+      run: |
+        echo "Running zabbix-agent.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/zabbix/zabbix-agent.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
     - name: Run lemp-setup.sh on the VM
       env:
         ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
@@ -235,12 +241,6 @@ jobs:
       run: |
         echo "Running certbot-ssl-install.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/dev/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
-        echo "Script executed successfully."
-
-    - name: Run zabbix-agent.sh on the VM
-      run: |
-        echo "Running certbot-ssl-install.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/zabbix/zabbix-agent.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
 
     - name: Run test-dump-restore.sh on the VM

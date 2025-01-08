@@ -2,7 +2,7 @@
 
 # Log file path
 LOG_FILE="/var/log/zabbix-setup.log"
-ZABBIX_IP=ZABBIX_IP # Replace ZABBIX_IP with the actual IP address of the Zabbix server
+ZABBIX_IP=S_ZABBIX_IP # Replace ZABBIX_IP with the actual IP address of the Zabbix server
 HOSTNAME=CLIENT_HOSTNAME
 
 # Function to check the exit status of the last executed command

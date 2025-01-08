@@ -163,6 +163,10 @@ jobs:
         echo "Script executed successfully."
 
     - name: Run zabbix-agent.sh on the VM
+      env:
+        ELASTIC_IP: ${{ secrets.ELASTIC_IP_DEV }}
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME_DEV }}
+        SSH_PORT: ${{ secrets.SSH_PORT_DEV }}
       run: |
         echo "Running zabbix-agent.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USERNAME@$ELASTIC_IP 'sudo bash /home/ubuntu/EPA-Wordpress-project/zabbix/zabbix-agent.sh || { echo "Script failed"; exit 1; }'

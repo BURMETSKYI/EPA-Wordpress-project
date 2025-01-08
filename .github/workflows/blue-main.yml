@@ -96,6 +96,12 @@ jobs:
         sed -i 's/DB_USERNAME/${{ secrets.DB_USERNAME }}/g' ./qa/test-dump-restore.sh
         sed -i 's/RDS_ENDPOINT/${{ secrets.RDS_ENDPOINT }}/g' ./qa/test-dump-restore.sh
         cat ./qa/test-dump-restore.sh  # Print file contents to confirm the edits
+
+        
+        echo "Editing variables variables in zabbix-agent.sh..."
+        sed -i 's/S_ZABBIX_IP/${{ secrets.ZABBIX_IP }}/g' ./zabbix/zabbix-agent.sh
+        sed -i 's/CLIENT_HOSTNAME/${{ secrets.HOSTNAME }}/g' ./zabbix/zabbix-agent.sh
+        cat ./zabbix/zabbix-agent.sh  # Print file contents to confirm the edits
         
      
     - name: Copy files to VM
@@ -184,6 +190,12 @@ jobs:
       run: |
         echo "Running certbot-ssl-install.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run zabbix-agent.sh on the VM
+      run: |
+        echo "Running certbot-ssl-install.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/zabbix/zabbix-agent.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
     
     - name: Configure AWS credentials

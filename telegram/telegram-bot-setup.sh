@@ -37,7 +37,7 @@ sudo apt-get install -y python3 python3-pip git python3.12-venv python3-dev libs
 check_exit_status "package installation"
 
 # Step 4: Set up the project directory and virtual environment
-PROJECT_DIR="/home/ubuntu/EPA-Wordpress-project/telegram/"
+PROJECT_DIR="/home/ubuntu/EPA-Wordpress-project/telegram"
 cd $PROJECT_DIR
 
 echo "Setting up Python virtual environment..." | tee -a $LOG_FILE
@@ -63,8 +63,6 @@ else
     exit 1
 fi
 
-# Deactivate virtual environment
-deactivate
 
 echo "Setup completed successfully!" | tee -a $LOG_FILE
 

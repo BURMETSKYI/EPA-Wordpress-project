@@ -40,8 +40,8 @@ jobs:
           fi
 
           # Ensure the CloudFormation template file exists
-          if [ ! -f CloudFormation.yaml ]; then
-            echo "Error: CloudFormation.yaml not found!"
+          if [ ! -f ./dev/CloudFormationEC2.yml ]; then
+            echo "Error: ./dev/CloudFormationEC2.yml not found!"
             exit 1
           fi
 

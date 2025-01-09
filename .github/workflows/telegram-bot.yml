@@ -41,7 +41,7 @@ jobs:
         echo "Checking for existing EPA-Wordpress-project directory..."
         if ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.BOT_IP }} "test -d ~/EPA-Wordpress-project"; then
           echo "Found existing directory, removing it..."
-          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.BOT_IP }} "rm -rf ~/EPA-Wordpress-project"
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.BOT_IP }} "sudo rm -rf ~/EPA-Wordpress-project"
         fi
 
         # Copy files using rsync

@@ -1,8 +1,11 @@
 name: Start Telegram Bot
 
 on:
-  workflow_call:
-  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Deploy TelegramBot EC2
+    types:
+      - completed
 
       
 jobs:

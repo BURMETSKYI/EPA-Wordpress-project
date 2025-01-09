@@ -1,8 +1,12 @@
 name: Deploy DevEnv EC2
 
 on:
-  workflow_call:
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Triggered via Telegram'
       
 jobs:
   deploy:

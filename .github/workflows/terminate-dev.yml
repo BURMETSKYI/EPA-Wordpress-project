@@ -1,6 +1,12 @@
 name: Dev Terminate
+
 on:
- workflow_dispatch:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Triggered via Telegram'
 
 jobs:
  terminate:

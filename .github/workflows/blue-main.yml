@@ -1,12 +1,15 @@
 name: Blue Environment Setup
 
 on:
+  workflow_call:
+    secrets:
+      SSH_PORT:
+        required: true
+      SSH_USERNAME:
+        required: true
+      ELASTIC_IP_GREEN:
+        required: true
   workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason for manual trigger'
-        required: false
-        default: 'Triggered via Telegram'
 
       
 jobs:

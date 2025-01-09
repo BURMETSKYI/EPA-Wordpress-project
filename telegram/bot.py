@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Configuration from environment or GitHub Secrets
-TELEGRAM_BOT_TOKEN = 'TELEGRAM_BOT_TOKEN'
+TELEGRAM_BOT_TOKEN = 'S_TELEGRAM_BOT_TOKEN'
 GITHUB_TOKEN = 'GH_PAT'
 REPO_OWNER = 'BURMETSKYI'
 REPO_NAME = 'EPA-Wordpress-project'

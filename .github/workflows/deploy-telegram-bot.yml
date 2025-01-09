@@ -9,11 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository to get the CloudFormation template
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up AWS credentials using the stored secrets
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -21,30 +19,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # Deploy CloudFormation stack with dynamic stack name
-      - name: Deploy CloudFormation stack
+      - name: Validate CloudFormation template
         run: |
-          STACK_NAME="TelegramBot-$(date +'%Y%m%d-%H%M%S')"
-
-          # Debugging: Print out the value of STACK_NAME to verify it's correct
-          echo "STACK_NAME is: $STACK_NAME"
-          
-          # Check if STACK_NAME is empty
-          if [ -z "$STACK_NAME" ]; then
-            echo "Error: STACK_NAME is empty!"
-            exit 1
-          fi
-
-          # Ensure the CloudFormation template file exists
           if [ ! -f CloudFormation-bot.yaml ]; then
             echo "Error: CloudFormation-bot.yaml not found!"
             exit 1
           fi
+          aws cloudformation validate-template --template-body file://CloudFormation-bot.yaml || {
+            echo "Template validation failed!"
+            exit 1
+          }
 
-          # Get the Instance ID associated with the Elastic IP
+      - name: Deploy CloudFormation stack
+        run: |
+          STACK_NAME="TelegramBot-$(date +'%Y%m%d-%H%M%S')"
+          echo "STACK_NAME is: $STACK_NAME"
+
           INSTANCE_ID=$(aws ec2 describe-addresses --allocation-ids eipalloc-07adc60569a6702fc --query 'Addresses[0].InstanceId' --output text)
-          
-          # If there's an associated instance, terminate it
           if [ "$INSTANCE_ID" != "None" ]; then
             echo "Terminating instance: $INSTANCE_ID"
             aws ec2 terminate-instances --instance-ids "$INSTANCE_ID" || {
@@ -54,11 +45,10 @@ jobs:
           else
             echo "No instance associated with the provided EIP."
           fi
-          
-          # Disassociate the Elastic IP (EIP) if it's associated
-          echo "Disassociating Elastic IP if associated..."
+
           ASSOCIATION_ID=$(aws ec2 describe-addresses --allocation-ids eipalloc-092e331c98b8b9bfa --query 'Addresses[0].AssociationId' --output text)
           if [ "$ASSOCIATION_ID" != "None" ]; then
+            echo "Disassociating Elastic IP..."
             aws ec2 disassociate-address --association-id "$ASSOCIATION_ID" || {
               echo "Failed to disassociate Elastic IP."
               exit 1
@@ -66,12 +56,14 @@ jobs:
           else
             echo "Elastic IP is not associated."
           fi
-          
-          # Deploy the CloudFormation stack
+
           echo "Deploying CloudFormation stack..."
-          aws cloudformation deploy --template-file ./CloudFormation-bot.yaml --stack-name "$STACK_NAME" || {
+          aws cloudformation deploy --template-file ./CloudFormation-bot.yaml --stack-name "$STACK_NAME" \
+            --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND || {
             echo "CloudFormation stack deployment failed!"
             exit 1
           }
 
-          echo "CloudFormation stack deployed successfully!"
+      - name: Fetch CloudFormation stack events
+        if: failure()
+        run: aws cloudformation describe-stack-events --stack-name $STACK_NAME

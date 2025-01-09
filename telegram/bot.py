@@ -212,8 +212,8 @@ def backup_content(message):
 @bot.message_handler(commands=['terminate_dev'])
 def terminate_dev(message):
     """Terminate development environment"""
-    user, success  = message.from_user.username or message.from_user.first_name
-    response = trigger_github_workflow('terminate-dev.yml', message.chat.id, user)
+    user = message.from_user.username or message.from_user.first_name
+    response, success = trigger_github_workflow('terminate-dev.yml', message.chat.id, user)
     bot.reply_to(message, response, parse_mode='Markdown')
 
 @bot.message_handler(commands=['status'])

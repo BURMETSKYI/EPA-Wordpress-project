@@ -1,15 +1,12 @@
 name: Development Env
 
-#on:
- # workflow_run:
-  #  workflows:
-   #   - Dev Env
-    #types:
-     # - completed
-
 on:
-  workflow_call:
-  workflow_dispatch:  # Keep this for manual triggers
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Triggered via Telegram'
   
 jobs:
   deploy_to_dev:

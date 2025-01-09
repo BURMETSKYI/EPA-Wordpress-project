@@ -1,14 +1,7 @@
-name: Blue Environment Setup
+name: Start Telegram Bot
 
 on:
   workflow_call:
-    secrets:
-      SSH_PORT:
-        required: true
-      SSH_USERNAME:
-        required: true
-      ELASTIC_IP_GREEN:
-        required: true
   workflow_dispatch:
 
       
@@ -16,9 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 120
-    environment: GREEN  # Define the environment here
-
-    
+        
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -32,14 +23,54 @@ jobs:
         echo "Checking key permissions..."
         ls -l private_key
     
-        echo "Testing SSH connection to ${{ secrets.ELASTIC_IP }} as ${{ secrets.SSH_USERNAME }} on port ${{ secrets.SSH_PORT }}..."
+        echo "Testing SSH connection to ${{ secrets.BOT_IP }} as ${{ secrets.SSH_USERNAME }} on port ${{ secrets.SSH_PORT }}..."
         ssh -vvv -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} "echo 'SSH Connection Successful'"
 
     - name: Edit CF Variables
       run: |
         echo "Editing Cloudflare variables in lemp-setup.sh..."
-        sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./lemp-setup.sh
-        sed -i 's/S_ELASTIC_IP/${{ secrets.ELASTIC_IP }}/g' ./lemp-setup.sh
-        sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./lemp-setup.sh
-        sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./lemp-setup.sh
+        sed -i 's/S_TELEGRAM_BOT_TOKEN/${{ secrets.TELEGRAM_BOT_TOKEN }}/g' ./telegram/bot.py
+        sed -i 's/GH_PAT/${{ secrets.GH_PAT }}/g' ./telegram/bot.py
         cat ./lemp-setup.sh  # Print file contents to confirm the edits
+
+    - name: Copy files to VM
+      run: |
+        echo "Starting file transfer process..."
+
+        # Check and remove existing directory if it exists
+        echo "Checking for existing EPA-Wordpress-project directory..."
+        if ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.BOT_IP }} "test -d ~/EPA-Wordpress-project"; then
+          echo "Found existing directory, removing it..."
+          ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.BOT_IP }} "rm -rf ~/EPA-Wordpress-project"
+        fi
+
+        # Copy files using rsync
+        echo "Copying files..."
+        if rsync -avz -e "ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }}" \
+          --exclude '.git' \
+          --exclude 'node_modules' \
+          --exclude '.env' \
+          --exclude 'private_key' \
+          "${PWD}/" ${{ secrets.SSH_USERNAME }}@${{ secrets.BOT_IP }}:~/EPA-Wordpress-project/; then
+          echo "Files copied successfully"
+        else
+          echo "Error: File transfer failed"
+          exit 1
+        fi
+        
+        # Verify file transfer
+        echo "Verifying file transfer..."
+        if ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.BOT_IP }} "test -d ~/EPA-Wordpress-project/"; then
+          echo "Directory verification successful"
+        else
+          echo "Error: Target directory not found after transfer"
+          exit 1
+        fi
+
+        
+    - name: Run telegram-bot-setup.sh on the VM
+      run: |
+        echo "Running telegram-bot-setup.sh on VM..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.BOT_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/telegram/telegram-bot-setup.sh || { echo "Script failed"; exit 1; }' 
+        echo "Script executed successfully."
+

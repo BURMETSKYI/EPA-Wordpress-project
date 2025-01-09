@@ -1,0 +1,45 @@
+name: Blue Environment Setup
+
+on:
+  workflow_call:
+    secrets:
+      SSH_PORT:
+        required: true
+      SSH_USERNAME:
+        required: true
+      ELASTIC_IP_GREEN:
+        required: true
+  workflow_dispatch:
+
+      
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: GREEN  # Define the environment here
+
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Debug SSH connection
+      run: |
+        echo "Testing SSH connection..."
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+        chmod 600 private_key
+    
+        echo "Checking key permissions..."
+        ls -l private_key
+    
+        echo "Testing SSH connection to ${{ secrets.ELASTIC_IP }} as ${{ secrets.SSH_USERNAME }} on port ${{ secrets.SSH_PORT }}..."
+        ssh -vvv -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} "echo 'SSH Connection Successful'"
+
+    - name: Edit CF Variables
+      run: |
+        echo "Editing Cloudflare variables in lemp-setup.sh..."
+        sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./lemp-setup.sh
+        sed -i 's/S_ELASTIC_IP/${{ secrets.ELASTIC_IP }}/g' ./lemp-setup.sh
+        sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./lemp-setup.sh
+        sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./lemp-setup.sh
+        cat ./lemp-setup.sh  # Print file contents to confirm the edits

@@ -1,14 +1,7 @@
 name: Green Environment Setup 
 
-#on:
- # workflow_run:
- #   workflows:
-  #    - Green Trigger
-  #  types:
-  #    - completed
-
 on:
-  workflow_call:  # Add this to make the workflow reusable
+  workflow_call:
     secrets:
       SSH_PORT:
         required: true
@@ -16,7 +9,7 @@ on:
         required: true
       ELASTIC_IP_GREEN:
         required: true
-  workflow_dispatch:  # Keep this for manual triggers
+  workflow_dispatch:
 
       
 jobs:

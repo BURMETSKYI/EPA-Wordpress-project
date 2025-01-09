@@ -1,11 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: CloudFormation template to create EC2 instance
 
-Parameters:
-  SnapshotId:
-    Type: String
-    Description: RDS snapshot ID to restore from
-
 Resources:
   MyEC2Instance:
     Type: AWS::EC2::Instance
@@ -26,7 +21,6 @@ Resources:
     Properties:
       InstanceId: !Ref MyEC2Instance
       AllocationId: eipalloc-092e331c98b8b9bfa
-
 
 Outputs:
   InstanceId:

@@ -10,7 +10,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('/home/ubuntu/github-telegram-bot/bot.log'),
+        logging.FileHandler('/var/log/bot-setup.log'),
         logging.StreamHandler()  # Also log to console
     ]
 )

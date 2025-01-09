@@ -150,8 +150,8 @@ def send_welcome(message):
 Development Deployments:
 /deploy_dev - Setup Dev Environment
 /deploy_dev_ec2 - Restart EC2 Dev
-/deploy_dev_full - Full development EC2 + RDS
-/terminate_dev - Terminate dev environment
+/deploy_dev_full - Full deployment EC2 + RDS
+/terminate_dev - Terminate Dev environment
 
 Prodaction Deployment:
 /deploy_blue_green - Blue-Green deployment

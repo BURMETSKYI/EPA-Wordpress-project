@@ -46,7 +46,7 @@ jobs:
             echo "No instance associated with the provided EIP."
           fi
 
-          ASSOCIATION_ID=$(aws ec2 describe-addresses --allocation-ids eipalloc-092e331c98b8b9bfa --query 'Addresses[0].AssociationId' --output text)
+          ASSOCIATION_ID=$(aws ec2 describe-addresses --allocation-ids eipalloc-07adc60569a6702fc --query 'Addresses[0].AssociationId' --output text)
           if [ "$ASSOCIATION_ID" != "None" ]; then
             echo "Disassociating Elastic IP..."
             aws ec2 disassociate-address --association-id "$ASSOCIATION_ID" || {

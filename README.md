@@ -23,6 +23,18 @@
 [![Static Badge](https://img.shields.io/badge/Apprenticeship_provider-UA_92-green?style=flat-square)](https://ua92.ac.uk/)
 [![Static Badge](https://img.shields.io/badge/Employer_company-THG-blue?style=flat-square)](https://www.thg.com/)
 
+## Key Features:
+- Automated Deployment and Management
+- LEMP Stack for WordPress Deployment
+- Infrastructure as Code with CloudFormation
+- Security and Performance Enhancements (Cloudflare, Certbot)
+- Streamlined CI/CD Pipeline with GitHub Actions
+- Reduced Downtime (40 seconds)
+- Real-time Monitoring and Health Checks (Zabbix, CloudWatch)
+- Automated Vulnerability Scanning (WPScan, Jetpack Scan)
+- Comprehensive Unit Testing
+- Scalable and Flexible Solution
+
 ## Tech Stack
 
 **WebApp:** PHP, Wordpress, MariaDB, NginX
@@ -43,17 +55,7 @@
 
 **CDN:** Cloudflare
 
-## Key Features:
-- Automated Deployment and Management
-- LEMP Stack for WordPress Deployment
-- Infrastructure as Code with CloudFormation
-- Security and Performance Enhancements (Cloudflare, Certbot)
-- Streamlined CI/CD Pipeline with GitHub Actions
-- Reduced Downtime (40 seconds)
-- Real-time Monitoring and Health Checks (Zabbix, CloudWatch)
-- Automated Vulnerability Scanning (WPScan, Jetpack Scan)
-- Comprehensive Unit Testing
-- Scalable and Flexible Solution
+
 
 ## Example of the underlying manual process before it was automated in the current project 
 

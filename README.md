@@ -26,12 +26,19 @@
 ## Tech Stack
 
 **WebApp:** PHP, Wordpress, MariaDB, NginX
+
 **OS:** Linux Ubuntu
+
 **Monitoring:** Zabbix, AWS CloudWatch
+
 **Infrastructure:** CloudFormation
+
 **Database:** AWS RDS
+
 **Storage:** AWS S3 Bucket
+
 **Chatbot platform:** Telegram
+
 **Security:** WPScan, Jetpack Scan
 
 **CDN:** Cloudflare

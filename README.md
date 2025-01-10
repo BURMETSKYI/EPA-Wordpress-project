@@ -1,5 +1,5 @@
 # End Point Assessment Project
-[![Static Badge](https://img.shields.io/badge/visit-moncorp.uk-blue?style=flat-square)](https://www.prod1.moncorp.uk/) [![Static Badge](https://img.shields.io/badge/visit-moncorp.uk-blue?style=flat-square)](https://www.dev.moncorp.uk/)
+[![Static Badge](https://img.shields.io/badge/visit-prod.moncorp.uk-blue?style=flat-square)](https://www.prod1.moncorp.uk/) [![Static Badge](https://img.shields.io/badge/visit-dev.moncorp.uk-green?style=flat-square)](https://www.dev.moncorp.uk/)
 
 
 # Launching a WordPress-based website on AWS with a LEMP stack, secured by Cloudflare, with CloudFormation handling infrastructure deployment, automated through GitHub Actions CI/CD, and managed by a Telegram bot.

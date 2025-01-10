@@ -18,7 +18,7 @@
 - [@BURMETSKYI](https://github.com/BURMETSKYI)
 
 
-## Badges
+## Employer & Learning provider
 
 [![Static Badge](https://img.shields.io/badge/Apprenticeship_provider-UA_92-green?style=flat-square)](https://ua92.ac.uk/)
 [![Static Badge](https://img.shields.io/badge/Employer_company-THG-blue?style=flat-square)](https://www.thg.com/)

@@ -56,6 +56,12 @@
 **CDN:** Cloudflare
 
 
+## Support
+
+For support, email vadym.burmetskyi@apprentice.ua92.ac.uk
+
+## 🔗 LinkidIns
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/vadym-burmetskyi/)
 
 ## Example of the underlying manual process before it was automated in the current project 
 
@@ -159,8 +165,4 @@ sudo apt install python3-certbot-nginx
 sudo certbot --nginx
 ```
 
-
-## Support
-
-For support, email vadym.burmetskyi@apprentice.ua92.ac.uk
 

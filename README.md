@@ -37,16 +37,16 @@
 **CDN:** Cloudflare
 
 ## Key Features:
-### Automated Deployment and Management
-### LEMP Stack for WordPress Deployment
-### Infrastructure as Code with CloudFormation
-### Security and Performance Enhancements (Cloudflare, Certbot)
-### Streamlined CI/CD Pipeline with GitHub Actions
-### Reduced Downtime (40 seconds)
-### Real-time Monitoring and Health Checks (Zabbix, CloudWatch)
-### Automated Vulnerability Scanning (WPScan, Jetpack Scan)
-### Comprehensive Unit Testing
-### Scalable and Flexible Solution
+- Automated Deployment and Management
+- LEMP Stack for WordPress Deployment
+- Infrastructure as Code with CloudFormation
+- Security and Performance Enhancements (Cloudflare, Certbot)
+- Streamlined CI/CD Pipeline with GitHub Actions
+- Reduced Downtime (40 seconds)
+- Real-time Monitoring and Health Checks (Zabbix, CloudWatch)
+- Automated Vulnerability Scanning (WPScan, Jetpack Scan)
+- Comprehensive Unit Testing
+- Scalable and Flexible Solution
 
 ## Example of the underlying manual process before it was automated in the current project 
 

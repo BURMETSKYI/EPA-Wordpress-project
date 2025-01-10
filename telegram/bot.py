@@ -172,15 +172,6 @@ def deploy_dev(message):
     response, success = trigger_github_workflow('dev-workflow.yml', message.chat.id, user)
     bot.reply_to(message, response, parse_mode='Markdown')
 
-
-@bot.message_handler(commands=['deploy_dev_ec2'])
-def deploy_dev_ec2(message):
-    """Deploy to development EC2 using dev-deploy-ec2.yml"""
-    user = message.from_user.username or message.from_user.first_name
-    response, success = trigger_github_workflow('dev-deploy-ec2.yml', message.chat.id, user)
-    bot.reply_to(message, response, parse_mode='Markdown')
-
-
 @bot.message_handler(commands=['deploy_dev_full'])
 def deploy_dev_full(message):
     """Full development deployment using dev-deploy-full.yml"""

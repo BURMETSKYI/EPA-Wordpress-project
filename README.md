@@ -11,8 +11,11 @@
  Real-time performance and health monitoring are ensured through Zabbix and AWS CloudWatch. Each pipeline includes 14 unit tests to validate functionality and maintain quality. Security is a priority, with proactive vulnerability scans conducted using leading tools like WPScan and Jetpack Scan.
  This cutting-edge solution highlights the power of automation in maintaining and scaling large-scale web infrastructure, significantly reducing operational demands while fostering strategic growth. By streamlining the deployment and management of development environments, it establishes a new benchmark for efficiency and scalability in overseeing over 400 websites. This project demonstrates the transformative potential of technology-driven processes, enabling teams to accomplish more with fewer resources and less effort.
 
+<img width="1704" alt="architecture_diagram" src="https://github.com/user-attachments/assets/0d51cc2f-87b4-4e5b-9173-5fadd3def1c8" />
 
+## Author
 
+- [@BURMETSKYI](https://github.com/BURMETSKYI)
 
 
 ## Badges
@@ -20,12 +23,30 @@
 [![Static Badge](https://img.shields.io/badge/Apprenticeship_provider-UA_92-green?style=flat-square)](https://ua92.ac.uk/)
 [![Static Badge](https://img.shields.io/badge/Employer_company-THG-blue?style=flat-square)](https://www.thg.com/)
 
+## Tech Stack
 
+**WebApp:** PHP, Wordpress, MariaDB, NginX
+**OS:** Linux Ubuntu
+**Monitoring:** Zabbix, AWS CloudWatch
+**Infrastructure:** CloudFormation
+**Database:** AWS RDS
+**Storage:** AWS S3 Bucket
+**Chatbot platform:** Telegram
+**Security:** WPScan, Jetpack Scan
 
-## Author
+**CDN:** Cloudflare
 
-- [@BURMETSKYI](https://github.com/BURMETSKYI)
-
+## Key Features:
+### Automated Deployment and Management
+### LEMP Stack for WordPress Deployment
+### Infrastructure as Code with CloudFormation
+### Security and Performance Enhancements (Cloudflare, Certbot)
+### Streamlined CI/CD Pipeline with GitHub Actions
+### Reduced Downtime (40 seconds)
+### Real-time Monitoring and Health Checks (Zabbix, CloudWatch)
+### Automated Vulnerability Scanning (WPScan, Jetpack Scan)
+### Comprehensive Unit Testing
+### Scalable and Flexible Solution
 
 ## Example of the underlying manual process before it was automated in the current project 
 
@@ -128,12 +149,6 @@ sudo apt install certbot
 sudo apt install python3-certbot-nginx
 sudo certbot --nginx
 ```
-
-## Tech Stack
-
-**Client:** PHP, Wordpress, MariaDB
-
-**Server:** AWS EC-2 instance, S3-Bucket, CloudFormation
 
 
 ## Support

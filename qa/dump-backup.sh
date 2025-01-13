@@ -27,7 +27,7 @@ sudo cp "$backup_file" /home/ubuntu/s3-epa/dev/
 
 # Replace URLs
 echo "Replacing URLs in backup file..."
-sudo sed -i 's|https://dev.moncorp.uk|https://prod1.moncorp.uk|g' /home/ubuntu/wp_backup.sql
+sudo sed -i 's|https://dev.moncorp.uk|https://prod.moncorp.uk|g' /home/ubuntu/wp_backup.sql
 
 sudo rm /home/ubuntu/s3-epa/wp_backup.sql
 

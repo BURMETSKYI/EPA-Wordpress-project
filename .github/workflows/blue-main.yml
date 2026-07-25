@@ -45,7 +45,7 @@ jobs:
         echo "Editing Cloudflare variables in certbot-ssl-install.sh..."
         sed -i 's/S_EMAIL/${{ secrets.EMAIL }}/g' ./certbot-ssl-install.sh
         sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./certbot-ssl-install.sh
-        cat ./certbot-ssl-install.sh  # Print file contents to confirm the edits
+        sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./certbot-ssl-install.sh
 
         # echo "Editing SERVERNAME variable in ngnix.conf..."
         # sed -i 's/SERVERNAME/${{ secrets.DOMAIN }}/g' ./ngnix.conf
@@ -54,10 +54,8 @@ jobs:
         echo "Editing Cloudflare variables in cloudflare-dns.sh..."
         sed -i 's/S_DOMAIN/${{ secrets.DOMAIN }}/g' ./cloudflare-dns.sh
         sed -i 's/NEW_ELASTIC_IP/${{ secrets.ELASTIC_IP }}/g' ./cloudflare-dns.sh
-        sed -i 's/OLD_ELASTIC_IP/${{ secrets.ELASTIC_IP_GREEN }}/g' ./cloudflare-dns.sh
         sed -i 's/S_CF_API/${{ secrets.SECRET_CF_API }}/g' ./cloudflare-dns.sh
         sed -i 's/S_CF_ZONE_ID/${{ secrets.CF_ZONE_ID }}/g' ./cloudflare-dns.sh
-        cat ./cloudflare-dns.sh  # Print file contents to confirm the edits
 
         echo "Editing MariaDB variables in wordpress-install.sh..."
         sed -i 's/DB_PASSWORD_S/${{ secrets.DB_PASSWORD }}/g' ./wordpress-install.sh
@@ -177,16 +175,19 @@ jobs:
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/dump-restore.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
 
-    - name: Run cloudflare-dns.sh on the VM
-      run: |
-        echo "Running cloudflare-dns.sh on VM..."
-        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
-        echo "Script executed successfully."
-
+    # TLS is issued via DNS-01 BEFORE the cutover, so the new origin is already
+    # serving HTTPS when traffic arrives. Reordering these two steps is what
+    # removes the gap where the origin held no certificate for the domain.
     - name: Run certbot-ssl-install.sh on the VM
       run: |
         echo "Running certbot-ssl-install.sh on VM..."
         ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/certbot-ssl-install.sh || { echo "Script failed"; exit 1; }'
+        echo "Script executed successfully."
+
+    - name: Run cloudflare-dns.sh on the VM
+      run: |
+        echo "Cutting DNS over to the new environment..."
+        ssh -i private_key -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USERNAME }}@${{ secrets.ELASTIC_IP }} 'sudo bash /home/ubuntu/EPA-Wordpress-project/cloudflare-dns.sh || { echo "Script failed"; exit 1; }'
         echo "Script executed successfully."
   
     - name: Configure AWS credentials
